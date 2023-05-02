@@ -1,0 +1,158 @@
+
+PowerSupply.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000000  00800100  00800100  000000d4  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         00000080  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .comment      00000030  00000000  00000000  000000d4  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000104  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000040  00000000  00000000  00000140  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   000007e3  00000000  00000000  00000180  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 00000710  00000000  00000000  00000963  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   0000026b  00000000  00000000  00001073  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000064  00000000  00000000  000012e0  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    000003da  00000000  00000000  00001344  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_ranges 00000030  00000000  00000000  0000171e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	19 c0       	rjmp	.+50     	; 0x34 <__ctors_end>
+   2:	20 c0       	rjmp	.+64     	; 0x44 <__bad_interrupt>
+   4:	1f c0       	rjmp	.+62     	; 0x44 <__bad_interrupt>
+   6:	1e c0       	rjmp	.+60     	; 0x44 <__bad_interrupt>
+   8:	1d c0       	rjmp	.+58     	; 0x44 <__bad_interrupt>
+   a:	1c c0       	rjmp	.+56     	; 0x44 <__bad_interrupt>
+   c:	1b c0       	rjmp	.+54     	; 0x44 <__bad_interrupt>
+   e:	1a c0       	rjmp	.+52     	; 0x44 <__bad_interrupt>
+  10:	19 c0       	rjmp	.+50     	; 0x44 <__bad_interrupt>
+  12:	18 c0       	rjmp	.+48     	; 0x44 <__bad_interrupt>
+  14:	17 c0       	rjmp	.+46     	; 0x44 <__bad_interrupt>
+  16:	16 c0       	rjmp	.+44     	; 0x44 <__bad_interrupt>
+  18:	15 c0       	rjmp	.+42     	; 0x44 <__bad_interrupt>
+  1a:	14 c0       	rjmp	.+40     	; 0x44 <__bad_interrupt>
+  1c:	13 c0       	rjmp	.+38     	; 0x44 <__bad_interrupt>
+  1e:	12 c0       	rjmp	.+36     	; 0x44 <__bad_interrupt>
+  20:	11 c0       	rjmp	.+34     	; 0x44 <__bad_interrupt>
+  22:	10 c0       	rjmp	.+32     	; 0x44 <__bad_interrupt>
+  24:	0f c0       	rjmp	.+30     	; 0x44 <__bad_interrupt>
+  26:	0e c0       	rjmp	.+28     	; 0x44 <__bad_interrupt>
+  28:	0d c0       	rjmp	.+26     	; 0x44 <__bad_interrupt>
+  2a:	0c c0       	rjmp	.+24     	; 0x44 <__bad_interrupt>
+  2c:	0b c0       	rjmp	.+22     	; 0x44 <__bad_interrupt>
+  2e:	0a c0       	rjmp	.+20     	; 0x44 <__bad_interrupt>
+  30:	09 c0       	rjmp	.+18     	; 0x44 <__bad_interrupt>
+  32:	08 c0       	rjmp	.+16     	; 0x44 <__bad_interrupt>
+
+00000034 <__ctors_end>:
+  34:	11 24       	eor	r1, r1
+  36:	1f be       	out	0x3f, r1	; 63
+  38:	cf ef       	ldi	r28, 0xFF	; 255
+  3a:	d2 e0       	ldi	r29, 0x02	; 2
+  3c:	de bf       	out	0x3e, r29	; 62
+  3e:	cd bf       	out	0x3d, r28	; 61
+  40:	17 d0       	rcall	.+46     	; 0x70 <main>
+  42:	1c c0       	rjmp	.+56     	; 0x7c <_exit>
+
+00000044 <__bad_interrupt>:
+  44:	dd cf       	rjmp	.-70     	; 0x0 <__vectors>
+
+00000046 <setClockPrescaler1>:
+    }
+}
+
+void setClockPrescaler1()
+{
+	CCP = 0xd8;
+  46:	88 ed       	ldi	r24, 0xD8	; 216
+  48:	86 bf       	out	0x36, r24	; 54
+	CLKPR = 0b00000000;
+  4a:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <__TEXT_REGION_LENGTH__+0x7fe061>
+  4e:	08 95       	ret
+
+00000050 <IO_Init>:
+}
+
+void IO_Init()
+{
+	DDRA = 0x07;
+  50:	87 e0       	ldi	r24, 0x07	; 7
+  52:	81 b9       	out	0x01, r24	; 1
+	DDRB = 0x00; // CS lijnen uitzoeken
+  54:	15 b8       	out	0x05, r1	; 5
+	DDRC = 0xff;
+  56:	8f ef       	ldi	r24, 0xFF	; 255
+  58:	89 b9       	out	0x09, r24	; 9
+  5a:	08 95       	ret
+
+0000005c <SPI_MasterInit>:
+}
+
+void SPI_MasterInit()
+{
+	/* MOSI and SCK -> output, RST and MISO -> input */
+	DDRD = 0b00001001;
+  5c:	89 e0       	ldi	r24, 0x09	; 9
+  5e:	8d b9       	out	0x0d, r24	; 13
+	/* Enable SPI, Master, clock -> 500 KHz */
+	SPCR = 0b01010001;
+  60:	81 e5       	ldi	r24, 0x51	; 81
+  62:	8c bd       	out	0x2c, r24	; 44
+  64:	08 95       	ret
+
+00000066 <SPI_MasterTransmit>:
+}
+
+void SPI_MasterTransmit(uint8_t data)
+{
+	/* Start transmission */
+	SPDR = data;
+  66:	8e bd       	out	0x2e, r24	; 46
+	/* Wait for transmission complete */
+	while(!(SPSR & (1<<SPIF)));
+  68:	0d b4       	in	r0, 0x2d	; 45
+  6a:	07 fe       	sbrs	r0, 7
+  6c:	fd cf       	rjmp	.-6      	; 0x68 <SPI_MasterTransmit+0x2>
+  6e:	08 95       	ret
+
+00000070 <main>:
+
+/* main */
+int main(void)
+{
+	/* f clock -> 8 MHz */
+	setClockPrescaler1();
+  70:	ea df       	rcall	.-44     	; 0x46 <setClockPrescaler1>
+	
+	/* Initialize IO */
+	IO_Init();
+  72:	ee df       	rcall	.-36     	; 0x50 <IO_Init>
+	
+	/* Initialize SPI */
+	SPI_MasterInit();
+  74:	f3 df       	rcall	.-26     	; 0x5c <SPI_MasterInit>
+			
+    while (1) 
+    {
+		SPI_MasterTransmit(SPDR);
+  76:	8e b5       	in	r24, 0x2e	; 46
+  78:	f6 df       	rcall	.-20     	; 0x66 <SPI_MasterTransmit>
+  7a:	fd cf       	rjmp	.-6      	; 0x76 <main+0x6>
+
+0000007c <_exit>:
+  7c:	f8 94       	cli
+
+0000007e <__stop_program>:
+  7e:	ff cf       	rjmp	.-2      	; 0x7e <__stop_program>
