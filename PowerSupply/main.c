@@ -105,13 +105,14 @@ void integerToASCII_5digits(uint16_t number, char *c_number)
 	/* Separate the digits */
     for (int i = 0, j = 10000; i < 5; i++, j/=10)
     {
-	    c_number[i] = number / j + 0x30;
+	    c_number[i] = number / j + 0x30; // + 0x30 to convert to ASCII
 	    number %= j;
     }
 }
 
 void formatValue(char c[6])
 {
+	/* Swap first zero with space if needed */
 	if (c[0] == '0')
 	{
 		c[0] = ' ';
