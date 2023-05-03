@@ -5,9 +5,6 @@
  * Author : Remko Claes
  */ 
 
-/* Set clock speed */
-#define F_CPU 8000000UL
-
 /* Includes */
 #include "main.h"
 
@@ -29,9 +26,17 @@ int main(void)
 			
     while (1) 
     {
-		SPI_MasterTransmit(SPDR);
+		chipSelect(CS_ADC, ACTIVE);
+		SPI_MasterTransmit('B');
+		SPI_MasterTransmit('i');
+		SPI_MasterTransmit('b');
+		SPI_MasterTransmit('b');
+		SPI_MasterTransmit('l');
+		SPI_MasterTransmit('e');
+		chipSelect(CS_ADC, INACTIVE);
     }
 }
+
 
 void setClockPrescaler1()
 {
@@ -60,6 +65,21 @@ void SPI_MasterTransmit(uint8_t data)
 	SPDR = data;
 	/* Wait for transmission complete */
 	while(!(SPSR & (1<<SPIF)));
+}
+
+void chipSelect(uint8_t pin, uint8_t state)
+{
+	switch (state)
+	{
+		case ACTIVE:
+			BIT_SET(DDRB, pin);
+			BIT_CLEAR(PORTB, pin);
+			break;
+		case INACTIVE:
+		default:
+			BIT_CLEAR(DDRB, pin);
+			break;
+	}
 }
 
 void initDisplay()
