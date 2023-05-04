@@ -36,6 +36,7 @@ void IOInit(void);
 void SPI_MasterInit(void);void SPI_MasterTransmit(uint8_t data);
 void ChipSelect(uint8_t, uint8_t);
 void DAC_Set(uint8_t, uint16_t);
+uint16_t ADC_Read(uint8_t);
 void DisplayInit(void);
 void DisplayUpdate(uint16_t, uint16_t, uint16_t, uint16_t);
 void IntegerToASCII_5digits(uint16_t, char*);
