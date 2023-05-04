@@ -95,13 +95,27 @@ void DAC_Set(uint8_t channel, uint16_t data)
 	 * bit 13: Output gain = 1
 	 * bit 12: /SHDN bit
 	 */
-	data |= (0x3000 + (!!channel << 15));
+	data |= (0x3000 + (channel << 15));
 	
 	/* Transmit data */
 	ChipSelect(CS_ADC, ACTIVE);
-	SPI_MasterTransmit(data >> 8); // high byte
-	SPI_MasterTransmit(data & 0x00ff); // low byte
+	SPI_MasterTransmit(data >> 8);		// high byte
+	SPI_MasterTransmit(data & 0x00ff);	// low byte
 	ChipSelect(CS_ADC, INACTIVE);
+}
+
+uint16_t ADC_Read(uint8_t channel)
+{
+	uint16_t data = 0;
+	uint8_t dataOut = 0xd0 + (channel << 5);
+	
+	ChipSelect(CS_ADC, ACTIVE);
+	SPI_MasterTransmit(dataOut);
+	data = SPDR << 8;
+	SPI_MasterTransmit(0x00);
+	data |= SPDR;
+	
+	return data;
 }
 
 void DisplayInit()
