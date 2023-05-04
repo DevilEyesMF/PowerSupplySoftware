@@ -26,14 +26,14 @@ int main(void)
 			
     while (1) 
     {
-		chipSelect(CS_ADC, ACTIVE);
+		ChipSelect(CS_ADC, ACTIVE);
 		SPI_MasterTransmit('B');
 		SPI_MasterTransmit('i');
 		SPI_MasterTransmit('b');
 		SPI_MasterTransmit('b');
 		SPI_MasterTransmit('l');
 		SPI_MasterTransmit('e');
-		chipSelect(CS_ADC, INACTIVE);
+		ChipSelect(CS_ADC, INACTIVE);
     }
 }
 
@@ -66,14 +66,16 @@ void SPI_MasterTransmit(uint8_t data)
 	while(!(SPSR & (1<<SPIF)));
 }
 
-void chipSelect(uint8_t pin, uint8_t state)
+void ChipSelect(uint8_t pin, uint8_t state)
 {
 	switch (state)
 	{
+		/* Sink */
 		case ACTIVE:
 			BIT_SET(DDRB, pin);
 			BIT_CLEAR(PORTB, pin);
 			break;
+		/* High-Z */
 		case INACTIVE:
 		default:
 			BIT_CLEAR(DDRB, pin);
@@ -81,28 +83,25 @@ void chipSelect(uint8_t pin, uint8_t state)
 	}
 }
 
-void initDisplay()
-{
-	
-}
-
-void setVoltage(uint16_t data)
+void DAC_Set(uint8_t channel, uint16_t data)
 {
 	/* Mask data */
 	data &= 0x0fff;
 	
 	/* 
 	 * Set control bits 
-	 * bit 15: Select DAC B
+	 * bit 15: Select channel
 	 * bit 14: Bypass input buffer
 	 * bit 13: Output gain = 1
 	 * bit 12: /SHDN bit
 	 */
-	data |= 0xb000;
+	data |= (0x3000 + (!!channel << 15));
 	
-	
-	SPI_MasterTransmit(data >> 8);
-	SPI_MasterTransmit(data & 0x00ff);
+	/* Transmit data */
+	ChipSelect(CS_ADC, ACTIVE);
+	SPI_MasterTransmit(data >> 8); // high byte
+	SPI_MasterTransmit(data & 0x00ff); // low byte
+	ChipSelect(CS_ADC, INACTIVE);
 }
 
 void DisplayInit()

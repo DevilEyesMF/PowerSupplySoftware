@@ -18,11 +18,15 @@ Discarded input sections
  .bss           0x00000000        0x0 main.o
  .text.initDisplay
                 0x00000000        0x2 main.o
- .text.integerToASCII_5digits
+ .text.setVoltage
+                0x00000000       0x24 main.o
+ .text.DisplayInit
+                0x00000000        0x2 main.o
+ .text.IntegerToASCII_5digits
                 0x00000000       0x56 main.o
- .text.formatValue
+ .text.FormatValue
                 0x00000000       0x3e main.o
- .text.updateDisplay
+ .text.DisplayUpdate
                 0x00000000       0x82 main.o
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
@@ -296,20 +300,20 @@ END GROUP
                 0x00000044                __vector_20
                 0x00000046                . = ALIGN (0x2)
  *(.text.*)
- .text.setClockPrescaler1
+ .text.ClockPrescalerSet1
                 0x00000046        0xa main.o
-                0x00000046                setClockPrescaler1
- .text.initIO   0x00000050        0xc main.o
-                0x00000050                initIO
+                0x00000046                ClockPrescalerSet1
+ .text.IOInit   0x00000050        0xc main.o
+                0x00000050                IOInit
  .text.SPI_MasterInit
                 0x0000005c        0xa main.o
                 0x0000005c                SPI_MasterInit
  .text.SPI_MasterTransmit
                 0x00000066        0xa main.o
                 0x00000066                SPI_MasterTransmit
- .text.chipSelect
+ .text.ChipSelect
                 0x00000070       0x48 main.o
-                0x00000070                chipSelect
+                0x00000070                ChipSelect
  .text.main     0x000000b8       0x2c main.o
                 0x000000b8                main
  .text.libgcc.builtins
@@ -432,42 +436,42 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000       0x68
+.debug_aranges  0x00000000       0x78
  *(.debug_aranges)
  .debug_aranges
-                0x00000000       0x68 main.o
+                0x00000000       0x78 main.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0xb1f
+.debug_info     0x00000000      0xbb2
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x6cc C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_info    0x000006cc      0x453 main.o
+ .debug_info    0x000006cc      0x4e6 main.o
 
-.debug_abbrev   0x00000000      0x7bf
+.debug_abbrev   0x00000000      0x7d5
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x66e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_abbrev  0x0000066e      0x151 main.o
+ .debug_abbrev  0x0000066e      0x167 main.o
 
-.debug_line     0x00000000      0x3de
+.debug_line     0x00000000      0x430
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x134 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_line    0x00000134      0x2aa main.o
+ .debug_line    0x00000134      0x2fc main.o
 
-.debug_frame    0x00000000      0x118
+.debug_frame    0x00000000      0x144
  *(.debug_frame)
- .debug_frame   0x00000000      0x118 main.o
+ .debug_frame   0x00000000      0x144 main.o
 
-.debug_str      0x00000000      0x480
+.debug_str      0x00000000      0x492
  *(.debug_str)
  .debug_str     0x00000000      0x25e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_str     0x0000025e      0x222 main.o
-                                0x298 (size before relaxing)
+ .debug_str     0x0000025e      0x234 main.o
+                                0x2aa (size before relaxing)
 
-.debug_loc      0x00000000      0x367
+.debug_loc      0x00000000      0x3e4
  *(.debug_loc)
- .debug_loc     0x00000000      0x367 main.o
+ .debug_loc     0x00000000      0x3e4 main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -487,9 +491,9 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0x58
+.debug_ranges   0x00000000       0x68
  *(.debug_ranges)
- .debug_ranges  0x00000000       0x58 main.o
+ .debug_ranges  0x00000000       0x68 main.o
 
 .debug_macro
  *(.debug_macro)

@@ -11,21 +11,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000001a0  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000068  00000000  00000000  000001dc  2**0
+  4 .debug_aranges 00000078  00000000  00000000  000001dc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000b1f  00000000  00000000  00000244  2**0
+  5 .debug_info   00000bb2  00000000  00000000  00000254  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000007bf  00000000  00000000  00000d63  2**0
+  6 .debug_abbrev 000007d5  00000000  00000000  00000e06  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000003de  00000000  00000000  00001522  2**0
+  7 .debug_line   00000430  00000000  00000000  000015db  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000118  00000000  00000000  00001900  2**2
+  8 .debug_frame  00000144  00000000  00000000  00001a0c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000480  00000000  00000000  00001a18  2**0
+  9 .debug_str    00000492  00000000  00000000  00001b50  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000367  00000000  00000000  00001e98  2**0
+ 10 .debug_loc    000003e4  00000000  00000000  00001fe2  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000058  00000000  00000000  000021ff  2**0
+ 11 .debug_ranges 00000068  00000000  00000000  000023c6  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -71,11 +71,11 @@ Disassembly of section .text:
 00000044 <__bad_interrupt>:
   44:	dd cf       	rjmp	.-70     	; 0x0 <__vectors>
 
-00000046 <setClockPrescaler1>:
+00000046 <ClockPrescalerSet1>:
+    }
 }
 
-
-void setClockPrescaler1()
+void ClockPrescalerSet1()
 {
 	CCP = 0xd8;
   46:	88 ed       	ldi	r24, 0xD8	; 216
@@ -84,10 +84,10 @@ void setClockPrescaler1()
   4a:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <__TEXT_REGION_LENGTH__+0x7fe061>
   4e:	08 95       	ret
 
-00000050 <initIO>:
+00000050 <IOInit>:
 }
 
-void initIO()
+void IOInit()
 {
 	DDRA = 0x07;
   50:	87 e0       	ldi	r24, 0x07	; 7
@@ -130,15 +130,15 @@ void SPI_MasterTransmit(uint8_t data)
 }
   6e:	08 95       	ret
 
-00000070 <chipSelect>:
+00000070 <ChipSelect>:
 
-void chipSelect(uint8_t pin, uint8_t state)
+void ChipSelect(uint8_t pin, uint8_t state)
 {
   70:	0f 93       	push	r16
   72:	08 2f       	mov	r16, r24
 	switch (state)
   74:	61 30       	cpi	r22, 0x01	; 1
-  76:	89 f4       	brne	.+34     	; 0x9a <chipSelect+0x2a>
+  76:	89 f4       	brne	.+34     	; 0x9a <ChipSelect+0x2a>
 	{
 		case ACTIVE:
 			BIT_SET(DDRB, pin);
@@ -160,7 +160,7 @@ void chipSelect(uint8_t pin, uint8_t state)
   94:	28 23       	and	r18, r24
   96:	26 b9       	out	0x06, r18	; 6
 			break;
-  98:	0d c0       	rjmp	.+26     	; 0xb4 <chipSelect+0x44>
+  98:	0d c0       	rjmp	.+26     	; 0xb4 <ChipSelect+0x44>
 		case INACTIVE:
 		default:
 			BIT_CLEAR(DDRB, pin);
@@ -189,12 +189,12 @@ void chipSelect(uint8_t pin, uint8_t state)
 int main(void)
 {
 	/* f clock -> 8 MHz */
-	setClockPrescaler1();
-  b8:	c6 df       	rcall	.-116    	; 0x46 <setClockPrescaler1>
+	ClockPrescalerSet1();
+  b8:	c6 df       	rcall	.-116    	; 0x46 <ClockPrescalerSet1>
 	
 	/* Initialize IO */
-	initIO();
-  ba:	ca df       	rcall	.-108    	; 0x50 <initIO>
+	IOInit();
+  ba:	ca df       	rcall	.-108    	; 0x50 <IOInit>
 	
 	/* Initialize SPI */
 	SPI_MasterInit();
@@ -202,10 +202,10 @@ int main(void)
 			
     while (1) 
     {
-		chipSelect(CS_ADC, ACTIVE);
+		ChipSelect(CS_ADC, ACTIVE);
   be:	61 e0       	ldi	r22, 0x01	; 1
   c0:	80 e0       	ldi	r24, 0x00	; 0
-  c2:	d6 df       	rcall	.-84     	; 0x70 <chipSelect>
+  c2:	d6 df       	rcall	.-84     	; 0x70 <ChipSelect>
 		SPI_MasterTransmit('B');
   c4:	82 e4       	ldi	r24, 0x42	; 66
   c6:	cf df       	rcall	.-98     	; 0x66 <SPI_MasterTransmit>
@@ -224,10 +224,10 @@ int main(void)
 		SPI_MasterTransmit('e');
   d8:	85 e6       	ldi	r24, 0x65	; 101
   da:	c5 df       	rcall	.-118    	; 0x66 <SPI_MasterTransmit>
-		chipSelect(CS_ADC, INACTIVE);
+		ChipSelect(CS_ADC, INACTIVE);
   dc:	60 e0       	ldi	r22, 0x00	; 0
   de:	80 e0       	ldi	r24, 0x00	; 0
-  e0:	c7 df       	rcall	.-114    	; 0x70 <chipSelect>
+  e0:	c7 df       	rcall	.-114    	; 0x70 <ChipSelect>
   e2:	ed cf       	rjmp	.-38     	; 0xbe <main+0x6>
 
 000000e4 <__ashldi3>:
