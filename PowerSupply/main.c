@@ -37,12 +37,7 @@ int main(void)
     }
 }
 
-<<<<<<< Updated upstream
-
-void setClockPrescaler1()
-=======
 void ClockPrescalerSet1()
->>>>>>> Stashed changes
 {
 	CCP = 0xd8;
 	CLKPR = 0b00000000;
@@ -71,7 +66,6 @@ void SPI_MasterTransmit(uint8_t data)
 	while(!(SPSR & (1<<SPIF)));
 }
 
-<<<<<<< Updated upstream
 void chipSelect(uint8_t pin, uint8_t state)
 {
 	switch (state)
@@ -88,7 +82,10 @@ void chipSelect(uint8_t pin, uint8_t state)
 }
 
 void initDisplay()
-=======
+{
+	
+}
+
 void setVoltage(uint16_t data)
 {
 	/* Mask data */
@@ -109,7 +106,6 @@ void setVoltage(uint16_t data)
 }
 
 void DisplayInit()
->>>>>>> Stashed changes
 {
 	
 }

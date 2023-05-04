@@ -29,17 +29,10 @@
 void ClockPrescalerSet1(void);
 void IOInit(void);
 void SPI_MasterInit(void);void SPI_MasterTransmit(uint8_t data);
-<<<<<<< Updated upstream
-void chipSelect(uint8_t, uint8_t);
-void initDisplay(void);
-void updateDisplay(uint16_t, uint16_t, uint16_t, uint16_t);
-void integerToASCII_5digits(uint16_t, char*);
-void formatValue(char*);
-=======
+void ChipSelect(uint8_t, uint8_t);
 void DisplayInit(void);
 void DisplayUpdate(uint16_t, uint16_t, uint16_t, uint16_t);
 void IntegerToASCII_5digits(uint16_t, char*);
 void FormatValue(char*);
->>>>>>> Stashed changes
 
 #endif /* MAIN_H_ */
