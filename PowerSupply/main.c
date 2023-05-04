@@ -16,10 +16,10 @@
 int main(void)
 {
 	/* f clock -> 8 MHz */
-	setClockPrescaler1();
+	ClockPrescalerSet1();
 	
 	/* Initialize IO */
-	initIO();
+	IOInit();
 	
 	/* Initialize SPI */
 	SPI_MasterInit();
@@ -37,14 +37,18 @@ int main(void)
     }
 }
 
+<<<<<<< Updated upstream
 
 void setClockPrescaler1()
+=======
+void ClockPrescalerSet1()
+>>>>>>> Stashed changes
 {
 	CCP = 0xd8;
 	CLKPR = 0b00000000;
 }
 
-void initIO()
+void IOInit()
 {
 	DDRA = 0x07;
 	DDRB = 0x00; // CS lijnen uitzoeken
@@ -67,6 +71,7 @@ void SPI_MasterTransmit(uint8_t data)
 	while(!(SPSR & (1<<SPIF)));
 }
 
+<<<<<<< Updated upstream
 void chipSelect(uint8_t pin, uint8_t state)
 {
 	switch (state)
@@ -83,26 +88,48 @@ void chipSelect(uint8_t pin, uint8_t state)
 }
 
 void initDisplay()
+=======
+void setVoltage(uint16_t data)
+{
+	/* Mask data */
+	data &= 0x0fff;
+	
+	/* 
+	 * Set control bits 
+	 * bit 15: Select DAC B
+	 * bit 14: Bypass input buffer
+	 * bit 13: Output gain = 1
+	 * bit 12: /SHDN bit
+	 */
+	data |= 0xb000;
+	
+	
+	SPI_MasterTransmit(data >> 8);
+	SPI_MasterTransmit(data & 0x00ff);
+}
+
+void DisplayInit()
+>>>>>>> Stashed changes
 {
 	
 }
 
-void updateDisplay(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCurrent, uint16_t measuredCurrent)
+void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCurrent, uint16_t measuredCurrent)
 {
 	/* Declare local char arrays for ASCII codes */
 	char c_setVoltage[6], c_measuredVoltage[6], c_setCurrent[6], c_measuredCurrent[6];
 	
 	/* Transform values to ASCII */
-	integerToASCII_5digits(setVoltage, c_setVoltage);
-	integerToASCII_5digits(measuredVoltage, c_measuredVoltage);
-	integerToASCII_5digits(setCurrent, c_setCurrent);
-	integerToASCII_5digits(measuredCurrent, c_measuredCurrent);
+	IntegerToASCII_5digits(setVoltage, c_setVoltage);
+	IntegerToASCII_5digits(measuredVoltage, c_measuredVoltage);
+	IntegerToASCII_5digits(setCurrent, c_setCurrent);
+	IntegerToASCII_5digits(measuredCurrent, c_measuredCurrent);
 	
 	/* Format the strings for the LCD */
-	formatValue(c_setVoltage);
-	formatValue(c_measuredVoltage);
-	formatValue(c_setCurrent);
-	formatValue(c_measuredCurrent);
+	FormatValue(c_setVoltage);
+	FormatValue(c_measuredVoltage);
+	FormatValue(c_setCurrent);
+	FormatValue(c_measuredCurrent);
 	
 	/* Print set voltage */
 
@@ -120,7 +147,7 @@ void updateDisplay(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	
 }
 
-void integerToASCII_5digits(uint16_t number, char *c_number)
+void IntegerToASCII_5digits(uint16_t number, char *c_number)
 {	
 	/* Separate the digits */
     for (int i = 0, j = 10000; i < 5; i++, j/=10)
@@ -130,7 +157,7 @@ void integerToASCII_5digits(uint16_t number, char *c_number)
     }
 }
 
-void formatValue(char c[6])
+void FormatValue(char c[6])
 {
 	/* Swap first zero with space if needed */
 	if (c[0] == '0')
