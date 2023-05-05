@@ -15,6 +15,12 @@
 /* main */
 int main(void)
 {
+	/* declare local variables */
+	uint16_t setVoltage = 0;		// Set voltage in mV
+	uint16_t setCurrent = 0;		// Set current in mA
+	uint16_t measuredVoltage = 0;	// Measured voltage in mV
+	uint16_t measuredCurrent = 0;	// Measured current in mA
+	
 	/* f clock -> 8 MHz */
 	ClockPrescalerSet1();
 
@@ -29,14 +35,31 @@ int main(void)
 
     while (1)
     {
-		ChipSelect(CS_ADC, ACTIVE);
-		SPI_MasterTransmit('B');
-		SPI_MasterTransmit('i');
-		SPI_MasterTransmit('b');
-		SPI_MasterTransmit('b');
-		SPI_MasterTransmit('l');
-		SPI_MasterTransmit('e');
-		ChipSelect(CS_ADC, INACTIVE);
+		// TODO setting voltage/current with rotary encoders
+		setVoltage = 20000;
+		setCurrent = 2000;
+		
+		/* Set voltage */
+		DAC_Set(DAC_VOLTAGE, setVoltage / 5);
+		
+		/* Set current */
+		DAC_Set(DAC_CURRENT, setCurrent << 1);
+		
+		/*
+		 * Measure voltage
+		 * 12-bit resolution measures voltage in steps of 5 mV
+		 */
+		measuredVoltage = ADC_Read(ADC_VOLTAGE) * 5;
+		
+		/*
+		 * Measure current
+		 * 12-bit resolution measures current in steps of 0.5 mA
+		 * only 11 bits are used -> steps of 1 mA
+		 */
+		measuredCurrent = ADC_Read(ADC_CURRENT) >> 1;
+		
+		/* Update the LCD display */
+		DisplayUpdate(setVoltage, measuredVoltage, setCurrent, measuredCurrent);
     }
 }
 
@@ -101,10 +124,10 @@ void DAC_Set(uint8_t channel, uint16_t data)
 	data |= (0x3000 + (channel << 15));
 
 	/* Transmit data */
-	ChipSelect(CS_ADC, ACTIVE);
+	ChipSelect(CS_DAC, ACTIVE);
 	SPI_MasterTransmit(data >> 8);		// high byte
 	SPI_MasterTransmit(data & 0x00ff);	// low byte
-	ChipSelect(CS_ADC, INACTIVE);
+	ChipSelect(CS_DAC, INACTIVE);
 }
 
 uint16_t ADC_Read(uint8_t channel)
@@ -117,6 +140,7 @@ uint16_t ADC_Read(uint8_t channel)
 	data = SPDR << 8;
 	SPI_MasterTransmit(0x00);
 	data |= SPDR;
+	ChipSelect(CS_ADC, INACTIVE);
 
 	return data;
 }
