@@ -59,7 +59,10 @@ int main(void)
 		measuredCurrent = ADC_Read(ADC_CURRENT) >> 1;
 		
 		/* Update the LCD display */
-		DisplayUpdate(setVoltage, measuredVoltage, setCurrent, measuredCurrent);
+		// DisplayUpdate(setVoltage, measuredVoltage, setCurrent, measuredCurrent);
+		
+		PUEA = 7;
+		PORTA = 7;
     }
 }
 
@@ -72,7 +75,7 @@ void ClockPrescalerSet1()
 void IOInit()
 {
 	DDRA = 0x07;
-	DDRB = 0x00; // CS lijnen uitzoeken
+	DDRB = 0x00;
 	DDRC = 0xff;
 }
 
@@ -269,7 +272,7 @@ void DisplayEnablePulse()
 	BIT_SET(DISPLAY_CTL, DISPLAY_EN);
 	_delay_us(1);
 	BIT_CLEAR(DISPLAY_CTL, DISPLAY_EN);
-	_delay_us(40);
+	_delay_us(100);
 }
 
 void IntegerToASCII_5digits(uint16_t number, char *c_number)

@@ -16,11 +16,23 @@ Discarded input sections
  .text          0x00000000        0x0 main.o
  .data          0x00000000        0x0 main.o
  .bss           0x00000000        0x0 main.o
+ .text.DisplaySetDDRAM
+                0x00000000        0xe main.o
+ .text.DisplayWriteChar
+                0x00000000        0xc main.o
+ .text.IntegerToASCII_5digits
+                0x00000000       0x56 main.o
+ .text.FormatValue
+                0x00000000       0x3e main.o
+ .text.DisplayUpdate
+                0x00000000      0x112 main.o
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
  .text.libgcc.mul
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
+ .text.libgcc.div
+                0x00000000       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
  .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
  .text.libgcc.prologue
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
@@ -35,6 +47,8 @@ Discarded input sections
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_divmodhi4.o)
  .text.libgcc.mul
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_divmodhi4.o)
+ .text.libgcc.div
+                0x00000000       0x26 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_divmodhi4.o)
  .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_divmodhi4.o)
  .text.libgcc.prologue
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_divmodhi4.o)
@@ -201,7 +215,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x42c
+.text           0x00000000      0x208
  *(.vectors)
  .vectors       0x00000000       0x34 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
                 0x00000000                __vector_default
@@ -304,43 +318,21 @@ END GROUP
                 0x000000ea       0x36 main.o
                 0x000000ea                ADC_Read
  .text.DisplayEnablePulse
-                0x00000120       0x1e main.o
+                0x00000120       0x22 main.o
                 0x00000120                DisplayEnablePulse
  .text.DisplayInit
-                0x0000013e       0x68 main.o
-                0x0000013e                DisplayInit
- .text.DisplaySetDDRAM
-                0x000001a6        0xe main.o
-                0x000001a6                DisplaySetDDRAM
- .text.DisplayWriteChar
-                0x000001b4        0xc main.o
-                0x000001b4                DisplayWriteChar
- .text.IntegerToASCII_5digits
-                0x000001c0       0x56 main.o
-                0x000001c0                IntegerToASCII_5digits
- .text.FormatValue
-                0x00000216       0x3e main.o
-                0x00000216                FormatValue
- .text.DisplayUpdate
-                0x00000254      0x112 main.o
-                0x00000254                DisplayUpdate
- .text.main     0x00000366       0x42 main.o
-                0x00000366                main
- .text.libgcc.div
-                0x000003a8       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_udivmodhi4.o)
-                0x000003a8                __udivmodhi4
- .text.libgcc.div
-                0x000003d0       0x26 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_divmodhi4.o)
-                0x000003d0                _div
-                0x000003d0                __divmodhi4
+                0x00000142       0x68 main.o
+                0x00000142                DisplayInit
+ .text.main     0x000001aa       0x28 main.o
+                0x000001aa                main
  .text.libgcc.builtins
-                0x000003f6       0x32 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_ashldi3.o)
-                0x000003f6                __ashldi3
-                0x00000428                . = ALIGN (0x2)
+                0x000001d2       0x32 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_ashldi3.o)
+                0x000001d2                __ashldi3
+                0x00000204                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000428        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_exit.o)
-                0x00000428                _exit
-                0x00000428                exit
+ .fini9         0x00000204        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_exit.o)
+                0x00000204                _exit
+                0x00000204                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -359,11 +351,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000428        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_exit.o)
+ .fini0         0x00000204        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr25\libgcc.a(_exit.o)
  *(.fini0)
-                0x0000042c                _etext = .
+                0x00000208                _etext = .
 
-.data           0x00800100        0x0 load address 0x0000042c
+.data           0x00800100        0x0 load address 0x00000208
                 [!provide]                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -381,8 +373,8 @@ END GROUP
  *(.bss*)
  *(COMMON)
                 [!provide]                PROVIDE (__bss_end, .)
-                0x0000042c                __data_load_start = LOADADDR (.data)
-                0x0000042c                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00000208                __data_load_start = LOADADDR (.data)
+                0x00000208                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800100        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
@@ -461,20 +453,20 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0xff8
+.debug_info     0x00000000      0xfcb
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x6cc C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_info    0x000006cc      0x92c main.o
+ .debug_info    0x000006cc      0x8ff main.o
 
-.debug_abbrev   0x00000000      0x8f1
+.debug_abbrev   0x00000000      0x8f3
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x66e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_abbrev  0x0000066e      0x283 main.o
+ .debug_abbrev  0x0000066e      0x285 main.o
 
-.debug_line     0x00000000      0x655
+.debug_line     0x00000000      0x65f
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x134 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_line    0x00000134      0x521 main.o
+ .debug_line    0x00000134      0x52b main.o
 
 .debug_frame    0x00000000      0x188
  *(.debug_frame)
@@ -486,9 +478,9 @@ END GROUP
  .debug_str     0x0000025e      0x2dc main.o
                                 0x352 (size before relaxing)
 
-.debug_loc      0x00000000      0x7c2
+.debug_loc      0x00000000      0x78e
  *(.debug_loc)
- .debug_loc     0x00000000      0x7c2 main.o
+ .debug_loc     0x00000000      0x78e main.o
 
 .debug_macinfo
  *(.debug_macinfo)
