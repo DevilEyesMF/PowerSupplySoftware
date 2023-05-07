@@ -13,15 +13,15 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
+/* Declare global variables */
+uint16_t setVoltage = 0;		// Set voltage in mV
+uint16_t setCurrent = 0;		// Set current in mA
+uint16_t measuredVoltage = 0;	// Measured voltage in mV
+uint16_t measuredCurrent = 0;	// Measured current in mA
+
 /* main */
 int main(void)
-{
-	/* declare local variables */
-	uint16_t setVoltage = 0;		// Set voltage in mV
-	uint16_t setCurrent = 0;		// Set current in mA
-	uint16_t measuredVoltage = 0;	// Measured voltage in mV
-	uint16_t measuredCurrent = 0;	// Measured current in mA
-	
+{	
 	/* f clock -> 8 MHz */
 	ClockPrescalerSet1();
 
@@ -30,22 +30,25 @@ int main(void)
 
 	/* Initialize SPI */
 	SPI_MasterInit();
-	DDRB = 7;
+	DDRB = 3;
 
 	/* Initialize Display */
 	DisplayInit();
 	
 	// TODO
 	BIT_SET(PCMSK1, PCINT10);
+	BIT_SET(PCMSK1, PCINT12);
 	BIT_SET(PCICR, PCIE1);
 	
-	// sei();
+	sei();
+	
+	setVoltage = 10000;
+	setCurrent = 1000;
 		
     while (1)
     {
 		// TODO setting voltage/current with rotary encoders
-		setVoltage = 20000;
-		setCurrent = 2000;
+
 		
 		/* Set voltage */
 		//DAC_Set(DAC_VOLTAGE, setVoltage / 5);
@@ -68,10 +71,6 @@ int main(void)
 		
 		/* Update the LCD display */
 		DisplayUpdate(setVoltage, measuredVoltage, setCurrent, measuredCurrent);
-		
-		//DisplaySetDDRAM(ADDR_VOLTAGE_SET);
-		//DisplayWriteChar('5');
-		//_delay_ms(200);
     }
 }
 
@@ -159,7 +158,7 @@ uint16_t ADC_Read(uint8_t channel)
 
 void DisplayInit()
 {
-	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RW);
+	//BIT_CLEAR(DISPLAY_CTL, DISPLAY_RW);
 	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RS);
 	BIT_CLEAR(DISPLAY_CTL, DISPLAY_EN);
 
@@ -210,16 +209,20 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	char c_setVoltage[6], c_measuredVoltage[6], c_setCurrent[6], c_measuredCurrent[6];
 
 	/* Transform values to ASCII */
-	IntegerToASCII_5digits(setVoltage, c_setVoltage);
-	IntegerToASCII_5digits(measuredVoltage, c_measuredVoltage);
-	IntegerToASCII_5digits(setCurrent, c_setCurrent);
-	IntegerToASCII_5digits(measuredCurrent, c_measuredCurrent);
+	IntegerToASCII(setVoltage, c_setVoltage);
+	IntegerToASCII(measuredVoltage, c_measuredVoltage);
+	IntegerToASCII(setCurrent, c_setCurrent);
+	IntegerToASCII(measuredCurrent, c_measuredCurrent);
 
 	/* Format the strings for the LCD */
 	FormatValue(c_setVoltage);
 	FormatValue(c_measuredVoltage);
 	FormatValue(c_setCurrent);
 	FormatValue(c_measuredCurrent);
+	
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RS);
+	DISPLAY_DATA = 0b10;
+	DisplayEnablePulse();
 
 	/* Print set voltage */
 	DisplaySetDDRAM(ADDR_VOLTAGE_SET);
@@ -289,7 +292,7 @@ void DisplayEnablePulse()
 	_delay_us(40);
 }
 
-void IntegerToASCII_5digits(uint16_t number, char *c_number)
+void IntegerToASCII(uint16_t number, char *c_number)
 {
 	/* Separate the digits */
     for (int i = 0, j = 10000; i < 5; i++, j/=10)
@@ -307,9 +310,9 @@ void FormatValue(char c[6])
 		c[0] = ' ';
 	}
 
-	for (int i = 5; i >= 2; i--)
+	for (int i = 5; i > 2; i--)
 	{
-		c[i+1] = c[i];
+		c[i] = c[i-1];
 	}
 
 	c[2] = ',';
@@ -317,12 +320,47 @@ void FormatValue(char c[6])
 
 ISR(PCINT1_vect, ISR_BLOCK)
 {
-	if (BIT_CHECK(PINB, PINB2) && !BIT_CHECK(PINB, PINB3))
+	uint8_t tmp = PINB;
+	
+	if (BIT_CHECK(tmp, PINB2))
 	{
-		
+		if (BIT_CHECK(tmp, PINB2) && !BIT_CHECK(tmp, PINB3))
+		{
+			setVoltage += 25;
+			if (setVoltage > 20000)
+			{
+				setVoltage = 20000;
+			}
+		}
+		if (BIT_CHECK(tmp, PINB2) && BIT_CHECK(tmp, PINB3))
+		{
+			setVoltage -= 25;
+			if (setVoltage > 20000)
+			{
+				setVoltage = 0;
+			}
+		}
 	}
-	if (BIT_CHECK(PINB, PINB2) && BIT_CHECK(PINB, PINB3))
-	{
-		
+	
+	if (BIT_CHECK(tmp, PINB4))
+	{	
+		if (BIT_CHECK(tmp, PINB4) && !BIT_CHECK(tmp, PINB5))
+		{
+			setCurrent += 1;
+			if (setCurrent > 2000)
+			{
+				setCurrent = 2000;
+			}
+		}
+		if (BIT_CHECK(tmp, PINB4) && BIT_CHECK(tmp, PINB5))
+		{
+			setCurrent -= 1;
+			if (setCurrent > 2000)
+			{
+				setCurrent = 0;
+			}
+		}
 	}
+	
+	
 }
