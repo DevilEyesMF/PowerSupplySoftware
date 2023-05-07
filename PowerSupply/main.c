@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 
 /* main */
 int main(void)
@@ -29,10 +30,17 @@ int main(void)
 
 	/* Initialize SPI */
 	SPI_MasterInit();
+	DDRB = 7;
 
 	/* Initialize Display */
 	DisplayInit();
-
+	
+	// TODO
+	BIT_SET(PCMSK1, PCINT10);
+	BIT_SET(PCICR, PCIE1);
+	
+	// sei();
+		
     while (1)
     {
 		// TODO setting voltage/current with rotary encoders
@@ -40,29 +48,30 @@ int main(void)
 		setCurrent = 2000;
 		
 		/* Set voltage */
-		DAC_Set(DAC_VOLTAGE, setVoltage / 5);
+		//DAC_Set(DAC_VOLTAGE, setVoltage / 5);
 		
 		/* Set current */
-		DAC_Set(DAC_CURRENT, setCurrent << 1);
+		//DAC_Set(DAC_CURRENT, setCurrent << 1);
 		
 		/*
 		 * Measure voltage
 		 * 12-bit resolution measures voltage in steps of 5 mV
 		 */
-		measuredVoltage = ADC_Read(ADC_VOLTAGE) * 5;
+		//measuredVoltage = ADC_Read(ADC_VOLTAGE) * 5;
 		
 		/*
 		 * Measure current
 		 * 12-bit resolution measures current in steps of 0.5 mA
 		 * only 11 bits are used -> steps of 1 mA
 		 */
-		measuredCurrent = ADC_Read(ADC_CURRENT) >> 1;
+		//measuredCurrent = ADC_Read(ADC_CURRENT) >> 1;
 		
 		/* Update the LCD display */
-		// DisplayUpdate(setVoltage, measuredVoltage, setCurrent, measuredCurrent);
+		DisplayUpdate(setVoltage, measuredVoltage, setCurrent, measuredCurrent);
 		
-		PUEA = 7;
-		PORTA = 7;
+		//DisplaySetDDRAM(ADDR_VOLTAGE_SET);
+		//DisplayWriteChar('5');
+		//_delay_ms(200);
     }
 }
 
@@ -178,7 +187,7 @@ void DisplayInit()
 	 * bit 1: Cursor
 	 * bit 0: Cursor position
 	 */
-	DISPLAY_DATA = 0b00001100;
+	DISPLAY_DATA = 0b00001101;
 	DisplayEnablePulse();
 
 	/*
@@ -186,7 +195,7 @@ void DisplayInit()
 	 * bit 1: Direction
 	 * bit 0: Display shift
 	 */
-	DISPLAY_DATA = 0b00000111;
+	DISPLAY_DATA = 0b00000100;
 	DisplayEnablePulse();
 
 	/* Display clear */
@@ -219,6 +228,7 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	{
 		DisplayWriteChar(c_setVoltage[i]);
 	}
+	DisplayWriteChar('V');
 
 	/* Print 2 spaces */
 
@@ -229,6 +239,7 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	{
 		DisplayWriteChar(c_measuredVoltage[i]);
 	}
+	DisplayWriteChar('V');
 
 	/* new line */
 
@@ -239,6 +250,7 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	{
 		DisplayWriteChar(c_setCurrent[i]);
 	}
+	DisplayWriteChar('A');
 
 	/* Print 2 spaces */
 
@@ -249,6 +261,7 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	{
 		DisplayWriteChar(c_measuredCurrent[i]);
 	}
+	DisplayWriteChar('A');
 }
 
 void DisplaySetDDRAM(uint8_t addressRAM)
@@ -269,10 +282,11 @@ void DisplayWriteChar(char c)
 
 void DisplayEnablePulse()
 {
+	_delay_us(5);
 	BIT_SET(DISPLAY_CTL, DISPLAY_EN);
-	_delay_us(1);
+	_delay_us(5);
 	BIT_CLEAR(DISPLAY_CTL, DISPLAY_EN);
-	_delay_us(100);
+	_delay_us(40);
 }
 
 void IntegerToASCII_5digits(uint16_t number, char *c_number)
@@ -299,4 +313,16 @@ void FormatValue(char c[6])
 	}
 
 	c[2] = ',';
+}
+
+ISR(PCINT1_vect, ISR_BLOCK)
+{
+	if (BIT_CHECK(PINB, PINB2) && !BIT_CHECK(PINB, PINB3))
+	{
+		
+	}
+	if (BIT_CHECK(PINB, PINB2) && BIT_CHECK(PINB, PINB3))
+	{
+		
+	}
 }

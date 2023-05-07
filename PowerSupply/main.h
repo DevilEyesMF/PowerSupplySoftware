@@ -23,7 +23,7 @@
 #define ADC_VOLTAGE 1
 
 #define DISPLAY_DATA PORTC
-#define DISPLAY_CTL PORTA
+#define DISPLAY_CTL PORTB // should be port A
 #define DISPLAY_RS PORTA0
 #define DISPLAY_RW PORTA1
 #define DISPLAY_EN PORTA2
