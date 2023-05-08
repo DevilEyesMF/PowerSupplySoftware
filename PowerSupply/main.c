@@ -30,14 +30,16 @@ int main(void)
 
 	/* Initialize SPI */
 	SPI_MasterInit();
-	DDRB = 3;
+	DDRB = 3; // tmp
 
 	/* Initialize Display */
 	DisplayInit();
 	
 	// TODO
 	BIT_SET(PCMSK1, PCINT10);
+	BIT_SET(PCMSK1, PCINT11);
 	BIT_SET(PCMSK1, PCINT12);
+	BIT_SET(PCMSK1, PCINT13);
 	BIT_SET(PCICR, PCIE1);
 	
 	sei();
@@ -320,47 +322,79 @@ void FormatValue(char c[6])
 
 ISR(PCINT1_vect, ISR_BLOCK)
 {
-	uint8_t tmp = PINB;
+	static uint8_t voltageState = 0;
+	static uint8_t currentState = 0;
+	uint8_t voltageClkState = BIT_CHECK(ENC_PORT, ENC_VOLTAGE_CLK);
+	uint8_t voltageDataState = BIT_CHECK(ENC_PORT, ENC_VOLTAGE_DT);
+	uint8_t currentClkState = BIT_CHECK(ENC_PORT, ENC_CURRENT_CLK);
+	uint8_t currentDataState = BIT_CHECK(ENC_PORT, ENC_CURRENT_DT);
 	
-	if (BIT_CHECK(tmp, PINB2))
+	switch (voltageState)
 	{
-		if (BIT_CHECK(tmp, PINB2) && !BIT_CHECK(tmp, PINB3))
-		{
-			setVoltage += 25;
-			if (setVoltage > 20000)
+		/* Idle state */
+		case 0:
+			if (!voltageClkState) // CW
 			{
-				setVoltage = 20000;
+				voltageState = 1;
 			}
-		}
-		if (BIT_CHECK(tmp, PINB2) && BIT_CHECK(tmp, PINB3))
-		{
-			setVoltage -= 25;
-			if (setVoltage > 20000)
+			else if (!voltageDataState) // CCW
 			{
-				setVoltage = 0;
+				voltageState = 4;
 			}
-		}
+			break;
+		
+		/* Clockwise rotation */
+		case 1:
+			if (!voltageDataState)
+			{
+				voltageState = 2;
+			}
+			break;
+		
+		case 2:
+			if (voltageClkState)
+			{
+				voltageState = 3;
+			}
+			break;
+		
+		case 3:
+			if (voltageClkState && voltageDataState)
+			{
+				voltageState = 0;
+				setVoltage += 25;
+				if (setVoltage > 20000)
+				{
+					setVoltage = 20000;
+				}
+			}
+			break;
+			
+		/* Counter clockwise rotation */
+		case 4:
+			if (!voltageClkState)
+			{
+				voltageState = 5;
+			}
+			break;
+			
+		case 5:
+			if (voltageDataState)
+			{
+				voltageState = 6;
+			}
+			break;
+		
+		case 6:
+			if (voltageClkState && voltageDataState)
+			{
+				voltageState = 0;
+				setVoltage -= 25;
+				if (setVoltage > 20000)
+				{
+					setVoltage = 0;
+				}
+			}
+			break;
 	}
-	
-	if (BIT_CHECK(tmp, PINB4))
-	{	
-		if (BIT_CHECK(tmp, PINB4) && !BIT_CHECK(tmp, PINB5))
-		{
-			setCurrent += 1;
-			if (setCurrent > 2000)
-			{
-				setCurrent = 2000;
-			}
-		}
-		if (BIT_CHECK(tmp, PINB4) && BIT_CHECK(tmp, PINB5))
-		{
-			setCurrent -= 1;
-			if (setCurrent > 2000)
-			{
-				setCurrent = 0;
-			}
-		}
-	}
-	
-	
 }

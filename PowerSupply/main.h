@@ -33,6 +33,12 @@
 #define ADDR_CURRENT_SET 0x40
 #define ADDR_CURRENT_MEAS 0x49
 
+#define ENC_PORT PORTB
+#define ENC_VOLTAGE_CLK PINB2
+#define ENC_VOLTAGE_DT PINB3
+#define ENC_CURRENT_CLK PINB4
+#define ENC_CURRENT_DT PINB5
+
 /* macro's */
 #define BIT_SET(a,b) ((a) |= (1ULL<<(b)))
 #define BIT_CLEAR(a,b) ((a) &= ~(1ULL<<(b)))
