@@ -23,11 +23,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000220  00000000  00000000  00002fbc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    000005e0  00000000  00000000  000031dc  2**0
+ 10 .debug_str    00000622  00000000  00000000  000031dc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000884  00000000  00000000  000037bc  2**0
+ 11 .debug_loc    00000884  00000000  00000000  000037fe  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 000000a8  00000000  00000000  00004040  2**0
+ 12 .debug_ranges 000000a8  00000000  00000000  00004082  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -785,46 +785,29 @@ int main(void)
  374:	cb cf       	rjmp	.-106    	; 0x30c <__stack+0xd>
 
 00000376 <rotaryEncoderInit>:
-extern uint16_t setCurrent;
-
-void rotaryEncoderInit()
-{
-	/* Enable interrupt for change on rotary encoder pins */
-	BIT_SET(PCMSK1, PCINT10);
  376:	ec e6       	ldi	r30, 0x6C	; 108
  378:	f0 e0       	ldi	r31, 0x00	; 0
  37a:	80 81       	ld	r24, Z
  37c:	84 60       	ori	r24, 0x04	; 4
  37e:	80 83       	st	Z, r24
-	BIT_SET(PCMSK1, PCINT11);
  380:	80 81       	ld	r24, Z
  382:	88 60       	ori	r24, 0x08	; 8
  384:	80 83       	st	Z, r24
-	BIT_SET(PCMSK1, PCINT12);
  386:	80 81       	ld	r24, Z
  388:	80 61       	ori	r24, 0x10	; 16
  38a:	80 83       	st	Z, r24
-	BIT_SET(PCMSK1, PCINT13);
  38c:	80 81       	ld	r24, Z
  38e:	80 62       	ori	r24, 0x20	; 32
  390:	80 83       	st	Z, r24
-	BIT_SET(PCICR, PCIE1);
  392:	e8 e6       	ldi	r30, 0x68	; 104
  394:	f0 e0       	ldi	r31, 0x00	; 0
  396:	80 81       	ld	r24, Z
  398:	82 60       	ori	r24, 0x02	; 2
  39a:	80 83       	st	Z, r24
-
-	/* Enable global interrupts */
-	sei();
  39c:	78 94       	sei
  39e:	08 95       	ret
 
 000003a0 <__vector_4>:
-}
-
-ISR(PCINT1_vect, ISR_BLOCK)
-{
  3a0:	1f 92       	push	r1
  3a2:	0f 92       	push	r0
  3a4:	0f b6       	in	r0, 0x3f	; 63
@@ -840,31 +823,22 @@ ISR(PCINT1_vect, ISR_BLOCK)
  3b8:	bf 93       	push	r27
  3ba:	ef 93       	push	r30
  3bc:	ff 93       	push	r31
-	static uint8_t voltageState = 0;
-	static uint8_t currentState = 0;
-	uint8_t voltageClkState = BIT_CHECK(ENC_PORT, ENC_VOLTAGE_CLK);
  3be:	84 b1       	in	r24, 0x04	; 4
  3c0:	82 fb       	bst	r24, 2
  3c2:	22 27       	eor	r18, r18
  3c4:	20 f9       	bld	r18, 0
-	uint8_t voltageDataState = BIT_CHECK(ENC_PORT, ENC_VOLTAGE_DT);
  3c6:	84 b1       	in	r24, 0x04	; 4
  3c8:	83 fb       	bst	r24, 3
  3ca:	33 27       	eor	r19, r19
  3cc:	30 f9       	bld	r19, 0
-	uint8_t currentClkState = BIT_CHECK(ENC_PORT, ENC_CURRENT_CLK);
  3ce:	84 b1       	in	r24, 0x04	; 4
  3d0:	84 fb       	bst	r24, 4
  3d2:	55 27       	eor	r21, r21
  3d4:	50 f9       	bld	r21, 0
-	uint8_t currentDataState = BIT_CHECK(ENC_PORT, ENC_CURRENT_DT);
  3d6:	84 b1       	in	r24, 0x04	; 4
  3d8:	85 fb       	bst	r24, 5
  3da:	44 27       	eor	r20, r20
  3dc:	40 f9       	bld	r20, 0
-
-	/* Rotary encoder voltage */
-	switch (voltageState)
  3de:	e0 91 09 01 	lds	r30, 0x0109	; 0x800109 <voltageState.1616>
  3e2:	8e 2f       	mov	r24, r30
  3e4:	90 e0       	ldi	r25, 0x00	; 0
@@ -876,138 +850,70 @@ ISR(PCINT1_vect, ISR_BLOCK)
  3f0:	e6 5e       	subi	r30, 0xE6	; 230
  3f2:	ff 4f       	sbci	r31, 0xFF	; 255
  3f4:	09 94       	ijmp
-	{
-		/* Idle state */
-		case 0:
-		if (!voltageClkState) // CW
  3f6:	21 11       	cpse	r18, r1
  3f8:	04 c0       	rjmp	.+8      	; 0x402 <__LOCK_REGION_LENGTH__+0x2>
-		{
-			voltageState = 1;
  3fa:	81 e0       	ldi	r24, 0x01	; 1
  3fc:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  400:	4e c0       	rjmp	.+156    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		}
-		else if (!voltageDataState) // CCW
  402:	31 11       	cpse	r19, r1
  404:	4c c0       	rjmp	.+152    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		{
-			voltageState = 4;
  406:	84 e0       	ldi	r24, 0x04	; 4
  408:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  40c:	48 c0       	rjmp	.+144    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		}
-		break;
-
-		/* Clockwise rotation */
-		case 1:
-		if (!voltageDataState)
  40e:	31 11       	cpse	r19, r1
  410:	46 c0       	rjmp	.+140    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		{
-			voltageState = 2;
  412:	82 e0       	ldi	r24, 0x02	; 2
  414:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  418:	42 c0       	rjmp	.+132    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		}
-		break;
-
-		case 2:
-		if (voltageClkState)
  41a:	22 23       	and	r18, r18
  41c:	09 f4       	brne	.+2      	; 0x420 <__LOCK_REGION_LENGTH__+0x20>
  41e:	3f c0       	rjmp	.+126    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		{
-			voltageState = 3;
  420:	83 e0       	ldi	r24, 0x03	; 3
  422:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  426:	3b c0       	rjmp	.+118    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		}
-		break;
-
-		case 3:
-		if (voltageClkState && voltageDataState)
  428:	22 23       	and	r18, r18
  42a:	c9 f1       	breq	.+114    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
  42c:	33 23       	and	r19, r19
  42e:	b9 f1       	breq	.+110    	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		{
-			voltageState = 0;
  430:	10 92 09 01 	sts	0x0109, r1	; 0x800109 <voltageState.1616>
-			setVoltage += 25;
  434:	80 91 06 01 	lds	r24, 0x0106	; 0x800106 <setVoltage>
  438:	90 91 07 01 	lds	r25, 0x0107	; 0x800107 <setVoltage+0x1>
  43c:	49 96       	adiw	r24, 0x19	; 25
  43e:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  442:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
-			if (setVoltage > 20000)
  446:	81 32       	cpi	r24, 0x21	; 33
  448:	9e 44       	sbci	r25, 0x4E	; 78
  44a:	48 f1       	brcs	.+82     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-			{
-				setVoltage = 20000;
  44c:	80 e2       	ldi	r24, 0x20	; 32
  44e:	9e e4       	ldi	r25, 0x4E	; 78
  450:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  454:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
  458:	22 c0       	rjmp	.+68     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		}
-		break;
-
-		/* Counter clockwise rotation */
-		case 4:
-		if (!voltageClkState)
  45a:	21 11       	cpse	r18, r1
  45c:	20 c0       	rjmp	.+64     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		{
-			voltageState = 5;
  45e:	85 e0       	ldi	r24, 0x05	; 5
  460:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  464:	1c c0       	rjmp	.+56     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		}
-		break;
-
-		case 5:
-		if (voltageDataState)
  466:	33 23       	and	r19, r19
  468:	d1 f0       	breq	.+52     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		{
-			voltageState = 6;
  46a:	86 e0       	ldi	r24, 0x06	; 6
  46c:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  470:	16 c0       	rjmp	.+44     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		}
-		break;
-
-		case 6:
-		if (voltageClkState && voltageDataState)
  472:	22 23       	and	r18, r18
  474:	a1 f0       	breq	.+40     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
  476:	33 23       	and	r19, r19
  478:	91 f0       	breq	.+36     	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-		{
-			voltageState = 0;
  47a:	10 92 09 01 	sts	0x0109, r1	; 0x800109 <voltageState.1616>
-			setVoltage -= 25;
  47e:	80 91 06 01 	lds	r24, 0x0106	; 0x800106 <setVoltage>
  482:	90 91 07 01 	lds	r25, 0x0107	; 0x800107 <setVoltage+0x1>
  486:	49 97       	sbiw	r24, 0x19	; 25
  488:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  48c:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
-			if (setVoltage > 20000)
  490:	81 32       	cpi	r24, 0x21	; 33
  492:	9e 44       	sbci	r25, 0x4E	; 78
  494:	20 f0       	brcs	.+8      	; 0x49e <__LOCK_REGION_LENGTH__+0x9e>
-			{
-				setVoltage = 0;
  496:	10 92 07 01 	sts	0x0107, r1	; 0x800107 <setVoltage+0x1>
  49a:	10 92 06 01 	sts	0x0106, r1	; 0x800106 <setVoltage>
-		}
-		break;
-	}
-
-	/* Rotary encoder current */
-	switch (currentState)
  49e:	e0 91 08 01 	lds	r30, 0x0108	; 0x800108 <currentState.1617>
  4a2:	8e 2f       	mov	r24, r30
  4a4:	90 e0       	ldi	r25, 0x00	; 0
@@ -1019,136 +925,70 @@ ISR(PCINT1_vect, ISR_BLOCK)
  4b0:	ef 5d       	subi	r30, 0xDF	; 223
  4b2:	ff 4f       	sbci	r31, 0xFF	; 255
  4b4:	09 94       	ijmp
-	{
-		/* Idle state */
-		case 0:
-		if (!currentClkState) // CW
  4b6:	51 11       	cpse	r21, r1
  4b8:	04 c0       	rjmp	.+8      	; 0x4c2 <__LOCK_REGION_LENGTH__+0xc2>
-		{
-			currentState = 1;
  4ba:	81 e0       	ldi	r24, 0x01	; 1
  4bc:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4c0:	4e c0       	rjmp	.+156    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		}
-		else if (!currentDataState) // CCW
  4c2:	41 11       	cpse	r20, r1
  4c4:	4c c0       	rjmp	.+152    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		{
-			currentState = 4;
  4c6:	84 e0       	ldi	r24, 0x04	; 4
  4c8:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4cc:	48 c0       	rjmp	.+144    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		}
-		break;
-
-		/* Clockwise rotation */
-		case 1:
-		if (!currentDataState)
  4ce:	41 11       	cpse	r20, r1
  4d0:	46 c0       	rjmp	.+140    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		{
-			currentState = 2;
  4d2:	82 e0       	ldi	r24, 0x02	; 2
  4d4:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4d8:	42 c0       	rjmp	.+132    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		}
-		break;
-
-		case 2:
-		if (currentClkState)
  4da:	55 23       	and	r21, r21
  4dc:	09 f4       	brne	.+2      	; 0x4e0 <__LOCK_REGION_LENGTH__+0xe0>
  4de:	3f c0       	rjmp	.+126    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		{
-			currentState = 3;
  4e0:	83 e0       	ldi	r24, 0x03	; 3
  4e2:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4e6:	3b c0       	rjmp	.+118    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		}
-		break;
-
-		case 3:
-		if (currentClkState && currentDataState)
  4e8:	55 23       	and	r21, r21
  4ea:	c9 f1       	breq	.+114    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
  4ec:	44 23       	and	r20, r20
  4ee:	b9 f1       	breq	.+110    	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		{
-			currentState = 0;
  4f0:	10 92 08 01 	sts	0x0108, r1	; 0x800108 <currentState.1617>
-			setCurrent += 1;
  4f4:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <setCurrent>
  4f8:	90 91 05 01 	lds	r25, 0x0105	; 0x800105 <setCurrent+0x1>
  4fc:	01 96       	adiw	r24, 0x01	; 1
  4fe:	90 93 05 01 	sts	0x0105, r25	; 0x800105 <setCurrent+0x1>
  502:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <setCurrent>
-			if (setCurrent > 2000)
  506:	81 3d       	cpi	r24, 0xD1	; 209
  508:	97 40       	sbci	r25, 0x07	; 7
  50a:	48 f1       	brcs	.+82     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-			{
-				setCurrent = 2000;
  50c:	80 ed       	ldi	r24, 0xD0	; 208
  50e:	97 e0       	ldi	r25, 0x07	; 7
  510:	90 93 05 01 	sts	0x0105, r25	; 0x800105 <setCurrent+0x1>
  514:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <setCurrent>
  518:	22 c0       	rjmp	.+68     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		}
-		break;
-
-		/* Counter clockwise rotation */
-		case 4:
-		if (!currentClkState)
  51a:	51 11       	cpse	r21, r1
  51c:	20 c0       	rjmp	.+64     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		{
-			currentState = 5;
  51e:	85 e0       	ldi	r24, 0x05	; 5
  520:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  524:	1c c0       	rjmp	.+56     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		}
-		break;
-
-		case 5:
-		if (currentDataState)
  526:	44 23       	and	r20, r20
  528:	d1 f0       	breq	.+52     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		{
-			currentState = 6;
  52a:	86 e0       	ldi	r24, 0x06	; 6
  52c:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  530:	16 c0       	rjmp	.+44     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		}
-		break;
-
-		case 6:
-		if (currentClkState && currentDataState)
  532:	55 23       	and	r21, r21
  534:	a1 f0       	breq	.+40     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
  536:	44 23       	and	r20, r20
  538:	91 f0       	breq	.+36     	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-		{
-			currentState = 0;
  53a:	10 92 08 01 	sts	0x0108, r1	; 0x800108 <currentState.1617>
-			setCurrent -= 1;
  53e:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <setCurrent>
  542:	90 91 05 01 	lds	r25, 0x0105	; 0x800105 <setCurrent+0x1>
  546:	01 97       	sbiw	r24, 0x01	; 1
  548:	90 93 05 01 	sts	0x0105, r25	; 0x800105 <setCurrent+0x1>
  54c:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <setCurrent>
-			if (setCurrent > 2000)
  550:	81 3d       	cpi	r24, 0xD1	; 209
  552:	97 40       	sbci	r25, 0x07	; 7
  554:	20 f0       	brcs	.+8      	; 0x55e <__LOCK_REGION_LENGTH__+0x15e>
-			{
-				setCurrent = 0;
  556:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <setCurrent+0x1>
  55a:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <setCurrent>
-			}
-		}
-		break;
-	}
  55e:	ff 91       	pop	r31
  560:	ef 91       	pop	r30
  562:	bf 91       	pop	r27
@@ -1166,49 +1006,24 @@ ISR(PCINT1_vect, ISR_BLOCK)
  57a:	18 95       	reti
 
 0000057c <SPI_MasterInit>:
-#include "spi.h"
-
-void SPI_MasterInit()
-{
-	/* MOSI and SCK -> output, RST and MISO -> input */
-	DDRD = 0b00001001;
  57c:	89 e0       	ldi	r24, 0x09	; 9
  57e:	8d b9       	out	0x0d, r24	; 13
-	/* Enable SPI, Master, clock -> 500 KHz */
-	SPCR = 0b01010001;
  580:	81 e5       	ldi	r24, 0x51	; 81
  582:	8c bd       	out	0x2c, r24	; 44
  584:	08 95       	ret
 
 00000586 <SPI_MasterTransmit>:
-}
-
-void SPI_MasterTransmit(uint8_t data)
-{
-	/* Start transmission */
-	SPDR = data;
  586:	8e bd       	out	0x2e, r24	; 46
-	/* Wait for transmission complete */
-	while(!(SPSR & (1<<SPIF)));
  588:	0d b4       	in	r0, 0x2d	; 45
  58a:	07 fe       	sbrs	r0, 7
  58c:	fd cf       	rjmp	.-6      	; 0x588 <SPI_MasterTransmit+0x2>
-}
  58e:	08 95       	ret
 
 00000590 <ChipSelect>:
-
-void ChipSelect(uint8_t pin, uint8_t state)
-{
  590:	0f 93       	push	r16
  592:	08 2f       	mov	r16, r24
-	switch (state)
  594:	61 30       	cpi	r22, 0x01	; 1
  596:	89 f4       	brne	.+34     	; 0x5ba <ChipSelect+0x2a>
-	{
-		/* Sink */
-		case ACTIVE:
-			BIT_SET(DDRB, pin);
  598:	e5 b1       	in	r30, 0x05	; 5
  59a:	21 e0       	ldi	r18, 0x01	; 1
  59c:	30 e0       	ldi	r19, 0x00	; 0
@@ -1221,17 +1036,11 @@ void ChipSelect(uint8_t pin, uint8_t state)
  5aa:	71 d0       	rcall	.+226    	; 0x68e <__ashldi3>
  5ac:	e2 2b       	or	r30, r18
  5ae:	e5 b9       	out	0x05, r30	; 5
-			BIT_CLEAR(PORTB, pin);
  5b0:	86 b1       	in	r24, 0x06	; 6
  5b2:	20 95       	com	r18
  5b4:	28 23       	and	r18, r24
  5b6:	26 b9       	out	0x06, r18	; 6
-			break;
  5b8:	0d c0       	rjmp	.+26     	; 0x5d4 <ChipSelect+0x44>
-		/* High-Z */
-		case INACTIVE:
-		default:
-			BIT_CLEAR(DDRB, pin);
  5ba:	e5 b1       	in	r30, 0x05	; 5
  5bc:	21 e0       	ldi	r18, 0x01	; 1
  5be:	30 e0       	ldi	r19, 0x00	; 0
@@ -1245,28 +1054,14 @@ void ChipSelect(uint8_t pin, uint8_t state)
  5ce:	20 95       	com	r18
  5d0:	e2 23       	and	r30, r18
  5d2:	e5 b9       	out	0x05, r30	; 5
-			break;
-	}
-}
  5d4:	0f 91       	pop	r16
  5d6:	08 95       	ret
 
 000005d8 <DAC_Set>:
-
-void DAC_Set(uint8_t channel, uint16_t data)
-{
  5d8:	cf 93       	push	r28
  5da:	df 93       	push	r29
-	/* Mask data */
-	data &= 0x0fff;
  5dc:	eb 01       	movw	r28, r22
  5de:	df 70       	andi	r29, 0x0F	; 15
-	 * bit 15: Select channel
-	 * bit 14: Bypass input buffer
-	 * bit 13: Output gain = 1
-	 * bit 12: /SHDN bit
-	 */
-	data |= (0x3000 + (channel << 15));
  5e0:	90 e0       	ldi	r25, 0x00	; 0
  5e2:	99 27       	eor	r25, r25
  5e4:	86 95       	lsr	r24
@@ -1275,66 +1070,44 @@ void DAC_Set(uint8_t channel, uint16_t data)
  5ea:	90 5d       	subi	r25, 0xD0	; 208
  5ec:	c8 2b       	or	r28, r24
  5ee:	d9 2b       	or	r29, r25
-
-	/* Transmit data */
-	ChipSelect(CS_DAC, ACTIVE);
  5f0:	61 e0       	ldi	r22, 0x01	; 1
  5f2:	81 e0       	ldi	r24, 0x01	; 1
  5f4:	cd df       	rcall	.-102    	; 0x590 <ChipSelect>
-	SPI_MasterTransmit(data >> 8);		// high byte
  5f6:	8d 2f       	mov	r24, r29
  5f8:	c6 df       	rcall	.-116    	; 0x586 <SPI_MasterTransmit>
-	SPI_MasterTransmit(data & 0x00ff);	// low byte
  5fa:	8c 2f       	mov	r24, r28
  5fc:	c4 df       	rcall	.-120    	; 0x586 <SPI_MasterTransmit>
-	ChipSelect(CS_DAC, INACTIVE);
  5fe:	60 e0       	ldi	r22, 0x00	; 0
  600:	81 e0       	ldi	r24, 0x01	; 1
  602:	c6 df       	rcall	.-116    	; 0x590 <ChipSelect>
-}
  604:	df 91       	pop	r29
  606:	cf 91       	pop	r28
  608:	08 95       	ret
 
 0000060a <ADC_Read>:
-
-uint16_t ADC_Read(uint8_t channel)
-{
  60a:	cf 93       	push	r28
  60c:	df 93       	push	r29
-	uint16_t data = 0;
-	uint8_t dataOut = 0xd0 + (channel << 5);
  60e:	82 95       	swap	r24
  610:	88 0f       	add	r24, r24
  612:	80 7e       	andi	r24, 0xE0	; 224
  614:	c0 ed       	ldi	r28, 0xD0	; 208
  616:	c8 0f       	add	r28, r24
-
-	ChipSelect(CS_ADC, ACTIVE);
  618:	61 e0       	ldi	r22, 0x01	; 1
  61a:	80 e0       	ldi	r24, 0x00	; 0
  61c:	b9 df       	rcall	.-142    	; 0x590 <ChipSelect>
-	SPI_MasterTransmit(dataOut);
  61e:	8c 2f       	mov	r24, r28
  620:	b2 df       	rcall	.-156    	; 0x586 <SPI_MasterTransmit>
-	data = SPDR << 8;
  622:	8e b5       	in	r24, 0x2e	; 46
  624:	90 e0       	ldi	r25, 0x00	; 0
  626:	c9 2f       	mov	r28, r25
  628:	d8 2f       	mov	r29, r24
-	SPI_MasterTransmit(0x00);
  62a:	80 e0       	ldi	r24, 0x00	; 0
  62c:	ac df       	rcall	.-168    	; 0x586 <SPI_MasterTransmit>
-	data |= SPDR;
  62e:	8e b5       	in	r24, 0x2e	; 46
  630:	c8 2b       	or	r28, r24
-	ChipSelect(CS_ADC, INACTIVE);
  632:	60 e0       	ldi	r22, 0x00	; 0
  634:	80 e0       	ldi	r24, 0x00	; 0
  636:	ac df       	rcall	.-168    	; 0x590 <ChipSelect>
-
-	return data;
-}
  638:	ce 01       	movw	r24, r28
  63a:	df 91       	pop	r29
  63c:	cf 91       	pop	r28

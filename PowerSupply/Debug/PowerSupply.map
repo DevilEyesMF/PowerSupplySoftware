@@ -557,16 +557,16 @@ END GROUP
  .debug_frame   0x0000012c       0x70 rotaryEncoder.o
  .debug_frame   0x0000019c       0x84 spi.o
 
-.debug_str      0x00000000      0x5e0
+.debug_str      0x00000000      0x622
  *(.debug_str)
  .debug_str     0x00000000      0x25e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATtiny_DFP/1.10.348/gcc/dev/attiny828/avr25/crtattiny828.o
- .debug_str     0x0000025e      0x265 display.o
-                                0x2db (size before relaxing)
- .debug_str     0x000004c3       0x5d main.o
-                                0x219 (size before relaxing)
- .debug_str     0x00000520       0x7c rotaryEncoder.o
+ .debug_str     0x0000025e      0x25f display.o
+                                0x2d5 (size before relaxing)
+ .debug_str     0x000004bd       0x5d main.o
+                                0x213 (size before relaxing)
+ .debug_str     0x0000051a       0xc4 rotaryEncoder.o
                                 0x210 (size before relaxing)
- .debug_str     0x0000059c       0x44 spi.o
+ .debug_str     0x000005de       0x44 spi.o
                                 0x1d0 (size before relaxing)
 
 .debug_loc      0x00000000      0x884
