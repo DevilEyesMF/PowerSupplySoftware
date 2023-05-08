@@ -329,72 +329,143 @@ ISR(PCINT1_vect, ISR_BLOCK)
 	uint8_t currentClkState = BIT_CHECK(ENC_PORT, ENC_CURRENT_CLK);
 	uint8_t currentDataState = BIT_CHECK(ENC_PORT, ENC_CURRENT_DT);
 	
+	/* Rotary encoder voltage */
 	switch (voltageState)
 	{
 		/* Idle state */
 		case 0:
-			if (!voltageClkState) // CW
-			{
-				voltageState = 1;
-			}
-			else if (!voltageDataState) // CCW
-			{
-				voltageState = 4;
-			}
-			break;
+		if (!voltageClkState) // CW
+		{
+			voltageState = 1;
+		}
+		else if (!voltageDataState) // CCW
+		{
+			voltageState = 4;
+		}
+		break;
 		
 		/* Clockwise rotation */
 		case 1:
-			if (!voltageDataState)
-			{
-				voltageState = 2;
-			}
-			break;
+		if (!voltageDataState)
+		{
+			voltageState = 2;
+		}
+		break;
 		
 		case 2:
-			if (voltageClkState)
-			{
-				voltageState = 3;
-			}
-			break;
+		if (voltageClkState)
+		{
+			voltageState = 3;
+		}
+		break;
 		
 		case 3:
-			if (voltageClkState && voltageDataState)
+		if (voltageClkState && voltageDataState)
+		{
+			voltageState = 0;
+			setVoltage += 25;
+			if (setVoltage > 20000)
 			{
-				voltageState = 0;
-				setVoltage += 25;
-				if (setVoltage > 20000)
-				{
-					setVoltage = 20000;
-				}
+				setVoltage = 20000;
 			}
-			break;
-			
+		}
+		break;
+		
 		/* Counter clockwise rotation */
 		case 4:
-			if (!voltageClkState)
-			{
-				voltageState = 5;
-			}
-			break;
-			
+		if (!voltageClkState)
+		{
+			voltageState = 5;
+		}
+		break;
+		
 		case 5:
-			if (voltageDataState)
-			{
-				voltageState = 6;
-			}
-			break;
+		if (voltageDataState)
+		{
+			voltageState = 6;
+		}
+		break;
 		
 		case 6:
-			if (voltageClkState && voltageDataState)
+		if (voltageClkState && voltageDataState)
+		{
+			voltageState = 0;
+			setVoltage -= 25;
+			if (setVoltage > 20000)
 			{
-				voltageState = 0;
-				setVoltage -= 25;
-				if (setVoltage > 20000)
-				{
-					setVoltage = 0;
-				}
+				setVoltage = 0;
 			}
-			break;
+		}
+		break;
+	}	
+
+	/* Rotary encoder current */
+	switch (currentState)
+	{
+		/* Idle state */
+		case 0:
+		if (!currentClkState) // CW
+		{
+			currentState = 1;
+		}
+		else if (!currentDataState) // CCW
+		{
+			currentState = 4;
+		}
+		break;
+	
+		/* Clockwise rotation */
+		case 1:
+		if (!currentDataState)
+		{
+			currentState = 2;
+		}
+		break;
+	
+		case 2:
+		if (currentClkState)
+		{
+			currentState = 3;
+		}
+		break;
+	
+		case 3:
+		if (currentClkState && currentDataState)
+		{
+			currentState = 0;
+			setCurrent += 1;
+			if (setCurrent > 2000)
+			{
+				setCurrent = 2000;
+			}
+		}
+		break;
+	
+		/* Counter clockwise rotation */
+		case 4:
+		if (!currentClkState)
+		{
+			currentState = 5;
+		}
+		break;
+	
+		case 5:
+		if (currentDataState)
+		{
+			currentState = 6;
+		}
+		break;
+	
+		case 6:
+		if (currentClkState && currentDataState)
+		{
+			currentState = 0;
+			setCurrent -= 1;
+			if (setCurrent > 2000)
+			{
+				setCurrent = 0;
+			}
+		}
+		break;
 	}
 }
