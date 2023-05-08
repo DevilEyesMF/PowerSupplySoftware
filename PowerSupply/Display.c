@@ -10,11 +10,11 @@
 
 #include "main.h"
 #include "display.h"
-#include "avr/delay.h"
+#include "util/delay.h"
 
 void DisplayInit()
 {
-	//BIT_CLEAR(DISPLAY_CTL, DISPLAY_RW);
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RW);
 	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RS);
 	BIT_CLEAR(DISPLAY_CTL, DISPLAY_EN);
 
@@ -89,8 +89,6 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	}
 	DisplayWriteChar('V');
 
-	/* Print 2 spaces */
-
 	/* Print measured voltage */
 	DisplaySetDDRAM(ADDR_VOLTAGE_MEAS);
 
@@ -100,8 +98,6 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 	}
 	DisplayWriteChar('V');
 
-	/* new line */
-
 	/* Print set current */
 	DisplaySetDDRAM(ADDR_CURRENT_SET);
 
@@ -110,8 +106,6 @@ void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCu
 		DisplayWriteChar(c_setCurrent[i]);
 	}
 	DisplayWriteChar('A');
-
-	/* Print 2 spaces */
 
 	/* Print measured current */
 	DisplaySetDDRAM(ADDR_CURRENT_MEAS);
