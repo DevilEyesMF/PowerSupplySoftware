@@ -39,8 +39,8 @@ int main(void)
 	/* Initialize rotary encoders */
 	rotaryEncoderInit();
 
-	setVoltage = 0;
-	setCurrent = 500;
+	setVoltage = 10;
+	setCurrent = 250;
 
     while (1)
     {
