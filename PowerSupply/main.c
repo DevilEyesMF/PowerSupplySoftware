@@ -48,7 +48,7 @@ int main(void)
 		DAC_Set(DAC_VOLTAGE, setVoltage / 5);
 
 		/* Set current */
-		DAC_Set(DAC_CURRENT, setCurrent << 1);
+		DAC_Set(DAC_CURRENT, (setCurrent + 1) << 1);
 
 		/*
 		 * Measure voltage
