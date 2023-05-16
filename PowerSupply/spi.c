@@ -72,9 +72,11 @@ uint16_t ADC_Read(uint8_t channel)
 
 	ChipSelect(CS_ADC, ACTIVE);
 	SPI_MasterTransmit(dataOut);
-	data = SPDR << 8;
+	data = SPDR << 9;
 	SPI_MasterTransmit(0x00);
-	data |= SPDR;
+	data |= SPDR << 1;
+	SPI_MasterTransmit(0x00);
+	data |= SPDR >> 7;
 	ChipSelect(CS_ADC, INACTIVE);
 
 	return data;

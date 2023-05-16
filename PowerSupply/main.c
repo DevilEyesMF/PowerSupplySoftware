@@ -39,7 +39,7 @@ int main(void)
 	/* Initialize rotary encoders */
 	rotaryEncoderInit();
 
-	setVoltage = 10;
+	setVoltage = 10000;
 	setCurrent = 250;
 
     while (1)

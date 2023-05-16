@@ -499,9 +499,9 @@ int main(void)
 	rotaryEncoderInit();
  2f6:	41 d0       	rcall	.+130    	; 0x37a <rotaryEncoderInit>
 
-	setVoltage = 10;
- 2f8:	8a e0       	ldi	r24, 0x0A	; 10
- 2fa:	90 e0       	ldi	r25, 0x00	; 0
+	setVoltage = 10000;
+ 2f8:	80 e1       	ldi	r24, 0x10	; 16
+ 2fa:	97 e2       	ldi	r25, 0x27	; 39
  2fc:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  300:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
 	setCurrent = 250;
