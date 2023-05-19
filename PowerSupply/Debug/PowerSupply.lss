@@ -3,31 +3,31 @@ PowerSupply.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  0000073c  2**0
+  0 .data         00000000  00800100  00800100  00000754  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000006c8  00000000  00000000  00000074  2**1
+  1 .text         000006e0  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          0000000a  00800100  00800100  0000073c  2**0
+  2 .bss          0000000a  00800100  00800100  00000754  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  0000073c  2**0
+  3 .comment      00000030  00000000  00000000  00000754  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000076c  2**2
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000784  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 000000e8  00000000  00000000  000007a8  2**0
+  5 .debug_aranges 000000e8  00000000  00000000  000007c0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000012b5  00000000  00000000  00000890  2**0
+  6 .debug_info   000012c8  00000000  00000000  000008a8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000a60  00000000  00000000  00001b45  2**0
+  7 .debug_abbrev 00000a60  00000000  00000000  00001b70  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000a1b  00000000  00000000  000025a5  2**0
+  8 .debug_line   00000a27  00000000  00000000  000025d0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000220  00000000  00000000  00002fc0  2**2
+  9 .debug_frame  00000220  00000000  00000000  00002ff8  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000622  00000000  00000000  000031e0  2**0
+ 10 .debug_str    00000622  00000000  00000000  00003218  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000884  00000000  00000000  00003802  2**0
+ 11 .debug_loc    00000884  00000000  00000000  0000383a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 000000a8  00000000  00000000  00004086  2**0
+ 12 .debug_ranges 000000a8  00000000  00000000  000040be  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -96,7 +96,7 @@ Disassembly of section .text:
   68:	b2 07       	cpc	r27, r18
   6a:	e1 f7       	brne	.-8      	; 0x64 <.do_clear_bss_loop>
   6c:	40 d1       	rcall	.+640    	; 0x2ee <main>
-  6e:	2a c3       	rjmp	.+1620   	; 0x6c4 <_exit>
+  6e:	36 c3       	rjmp	.+1644   	; 0x6dc <_exit>
 
 00000070 <__bad_interrupt>:
   70:	c7 cf       	rjmp	.-114    	; 0x0 <__vectors>
@@ -112,6 +112,12 @@ Disassembly of section .text:
   74:	8a 95       	dec	r24
   76:	f1 f7       	brne	.-4      	; 0x74 <DisplayEnablePulse+0x2>
   78:	00 00       	nop
+}
+
+void DisplayEnablePulse()
+{
+	_delay_us(5);
+	BIT_SET(DISPLAY_CTL, DISPLAY_EN);
   7a:	82 b1       	in	r24, 0x02	; 2
   7c:	84 60       	ori	r24, 0x04	; 4
   7e:	82 b9       	out	0x02, r24	; 2
@@ -119,6 +125,8 @@ Disassembly of section .text:
   82:	8a 95       	dec	r24
   84:	f1 f7       	brne	.-4      	; 0x82 <DisplayEnablePulse+0x10>
   86:	00 00       	nop
+	_delay_us(5);
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_EN);
   88:	82 b1       	in	r24, 0x02	; 2
   8a:	8b 7f       	andi	r24, 0xFB	; 251
   8c:	82 b9       	out	0x02, r24	; 2
@@ -129,13 +137,22 @@ Disassembly of section .text:
   96:	08 95       	ret
 
 00000098 <DisplayInit>:
+#include "main.h"
+#include "display.h"
+#include "util/delay.h"
+
+void DisplayInit()
+{
   98:	cf 93       	push	r28
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RW);
   9a:	82 b1       	in	r24, 0x02	; 2
   9c:	8d 7f       	andi	r24, 0xFD	; 253
   9e:	82 b9       	out	0x02, r24	; 2
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RS);
   a0:	82 b1       	in	r24, 0x02	; 2
   a2:	8e 7f       	andi	r24, 0xFE	; 254
   a4:	82 b9       	out	0x02, r24	; 2
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_EN);
   a6:	82 b1       	in	r24, 0x02	; 2
   a8:	8b 7f       	andi	r24, 0xFB	; 251
   aa:	82 b9       	out	0x02, r24	; 2
@@ -151,8 +168,15 @@ Disassembly of section .text:
   b2:	f1 f7       	brne	.-4      	; 0xb0 <DisplayInit+0x18>
   b4:	00 c0       	rjmp	.+0      	; 0xb6 <DisplayInit+0x1e>
   b6:	00 00       	nop
+	 * bit 4: Data bus length = 8
+	 * bit 3: Number of lines = 2
+	 * bit 2: font size = 5x8
+	 */
+	_delay_ms(15);
+	DISPLAY_DATA = 0b00111000;
   b8:	c8 e3       	ldi	r28, 0x38	; 56
   ba:	ca b9       	out	0x0a, r28	; 10
+	DisplayEnablePulse();
   bc:	da df       	rcall	.-76     	; 0x72 <DisplayEnablePulse>
   be:	8f e0       	ldi	r24, 0x0F	; 15
   c0:	97 e2       	ldi	r25, 0x27	; 39
@@ -160,7 +184,11 @@ Disassembly of section .text:
   c4:	f1 f7       	brne	.-4      	; 0xc2 <DisplayInit+0x2a>
   c6:	00 c0       	rjmp	.+0      	; 0xc8 <DisplayInit+0x30>
   c8:	00 00       	nop
+
+	_delay_ms(5);
+	DISPLAY_DATA = 0b00111000;
   ca:	ca b9       	out	0x0a, r28	; 10
+	DisplayEnablePulse();
   cc:	d2 df       	rcall	.-92     	; 0x72 <DisplayEnablePulse>
 	#else
 		//round up by default
@@ -174,16 +202,38 @@ Disassembly of section .text:
   d4:	f1 f7       	brne	.-4      	; 0xd2 <DisplayInit+0x3a>
   d6:	00 c0       	rjmp	.+0      	; 0xd8 <DisplayInit+0x40>
   d8:	00 00       	nop
+
+	_delay_us(100);
+	DISPLAY_DATA = 0b00111000;
   da:	ca b9       	out	0x0a, r28	; 10
+	DisplayEnablePulse();
   dc:	ca df       	rcall	.-108    	; 0x72 <DisplayEnablePulse>
+	 * Display on
+	 * bit 2: Display on
+	 * bit 1: Cursor
+	 * bit 0: Cursor position
+	 */
+	DISPLAY_DATA = 0b00001101;
   de:	8d e0       	ldi	r24, 0x0D	; 13
   e0:	8a b9       	out	0x0a, r24	; 10
+	DisplayEnablePulse();
   e2:	c7 df       	rcall	.-114    	; 0x72 <DisplayEnablePulse>
+	/*
+	 * Entry mode set
+	 * bit 1: Direction
+	 * bit 0: Display shift
+	 */
+	DISPLAY_DATA = 0b00000100;
   e4:	84 e0       	ldi	r24, 0x04	; 4
   e6:	8a b9       	out	0x0a, r24	; 10
+	DisplayEnablePulse();
   e8:	c4 df       	rcall	.-120    	; 0x72 <DisplayEnablePulse>
+
+	/* Display clear */
+	DISPLAY_DATA = 0b00000001;
   ea:	81 e0       	ldi	r24, 0x01	; 1
   ec:	8a b9       	out	0x0a, r24	; 10
+	DisplayEnablePulse();
   ee:	c1 df       	rcall	.-126    	; 0x72 <DisplayEnablePulse>
 	#else
 		//round up by default
@@ -197,27 +247,52 @@ Disassembly of section .text:
   f6:	f1 f7       	brne	.-4      	; 0xf4 <DisplayInit+0x5c>
   f8:	00 c0       	rjmp	.+0      	; 0xfa <DisplayInit+0x62>
   fa:	00 00       	nop
+	_delay_ms(2);
+}
   fc:	cf 91       	pop	r28
   fe:	08 95       	ret
 
 00000100 <DisplaySetDDRAM>:
+	DisplayWriteChar('A');
+}
+
+void DisplaySetDDRAM(uint8_t addressRAM)
+{
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RS);
  100:	92 b1       	in	r25, 0x02	; 2
  102:	9e 7f       	andi	r25, 0xFE	; 254
  104:	92 b9       	out	0x02, r25	; 2
+
+	DISPLAY_DATA = addressRAM | 0b10000000;
  106:	80 68       	ori	r24, 0x80	; 128
  108:	8a b9       	out	0x0a, r24	; 10
+	DisplayEnablePulse();
  10a:	b3 df       	rcall	.-154    	; 0x72 <DisplayEnablePulse>
  10c:	08 95       	ret
 
 0000010e <DisplayWriteChar>:
+}
+
+void DisplayWriteChar(char c)
+{
+	BIT_SET(DISPLAY_CTL, DISPLAY_RS);
  10e:	92 b1       	in	r25, 0x02	; 2
  110:	91 60       	ori	r25, 0x01	; 1
  112:	92 b9       	out	0x02, r25	; 2
+
+	DISPLAY_DATA = c;
  114:	8a b9       	out	0x0a, r24	; 10
+	DisplayEnablePulse();
  116:	ad df       	rcall	.-166    	; 0x72 <DisplayEnablePulse>
  118:	08 95       	ret
 
 0000011a <IntegerToASCII>:
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_EN);
+	_delay_us(40);
+}
+
+void IntegerToASCII(uint16_t number, char *c_number)
+{
  11a:	ef 92       	push	r14
  11c:	ff 92       	push	r15
  11e:	0f 93       	push	r16
@@ -227,33 +302,49 @@ Disassembly of section .text:
  126:	e8 2f       	mov	r30, r24
  128:	49 2f       	mov	r20, r25
  12a:	7b 01       	movw	r14, r22
+	/* Separate the digits */
+    for (int i = 0, j = 10000; i < 5; i++, j/=10)
  12c:	c0 e1       	ldi	r28, 0x10	; 16
  12e:	d7 e2       	ldi	r29, 0x27	; 39
  130:	20 e0       	ldi	r18, 0x00	; 0
  132:	30 e0       	ldi	r19, 0x00	; 0
  134:	13 c0       	rjmp	.+38     	; 0x15c <IntegerToASCII+0x42>
+    {
+	    c_number[i] = number / j + 0x30; // + 0x30 to convert to ASCII
  136:	87 01       	movw	r16, r14
  138:	02 0f       	add	r16, r18
  13a:	13 1f       	adc	r17, r19
  13c:	8e 2f       	mov	r24, r30
  13e:	94 2f       	mov	r25, r20
  140:	be 01       	movw	r22, r28
- 142:	80 d2       	rcall	.+1280   	; 0x644 <__udivmodhi4>
+ 142:	8c d2       	rcall	.+1304   	; 0x65c <__udivmodhi4>
  144:	60 5d       	subi	r22, 0xD0	; 208
  146:	f8 01       	movw	r30, r16
  148:	60 83       	st	Z, r22
+	    number %= j;
  14a:	e8 2f       	mov	r30, r24
  14c:	49 2f       	mov	r20, r25
+}
+
+void IntegerToASCII(uint16_t number, char *c_number)
+{
+	/* Separate the digits */
+    for (int i = 0, j = 10000; i < 5; i++, j/=10)
  14e:	2f 5f       	subi	r18, 0xFF	; 255
  150:	3f 4f       	sbci	r19, 0xFF	; 255
  152:	ce 01       	movw	r24, r28
  154:	6a e0       	ldi	r22, 0x0A	; 10
  156:	70 e0       	ldi	r23, 0x00	; 0
- 158:	89 d2       	rcall	.+1298   	; 0x66c <__divmodhi4>
+ 158:	95 d2       	rcall	.+1322   	; 0x684 <__divmodhi4>
  15a:	eb 01       	movw	r28, r22
  15c:	25 30       	cpi	r18, 0x05	; 5
  15e:	31 05       	cpc	r19, r1
  160:	54 f3       	brlt	.-44     	; 0x136 <IntegerToASCII+0x1c>
+    {
+	    c_number[i] = number / j + 0x30; // + 0x30 to convert to ASCII
+	    number %= j;
+    }
+}
  162:	df 91       	pop	r29
  164:	cf 91       	pop	r28
  166:	1f 91       	pop	r17
@@ -263,17 +354,36 @@ Disassembly of section .text:
  16e:	08 95       	ret
 
 00000170 <FormatValue>:
+
+void FormatValue(char c[6])
+{
  170:	cf 93       	push	r28
  172:	df 93       	push	r29
  174:	dc 01       	movw	r26, r24
+	/* Swap first zero with space if needed */
+	if (c[0] == '0')
  176:	8c 91       	ld	r24, X
  178:	80 33       	cpi	r24, 0x30	; 48
  17a:	11 f4       	brne	.+4      	; 0x180 <FormatValue+0x10>
+	{
+		c[0] = ' ';
  17c:	80 e2       	ldi	r24, 0x20	; 32
  17e:	8c 93       	st	X, r24
+	    number %= j;
+    }
+}
+
+void FormatValue(char c[6])
+{
  180:	25 e0       	ldi	r18, 0x05	; 5
  182:	30 e0       	ldi	r19, 0x00	; 0
  184:	09 c0       	rjmp	.+18     	; 0x198 <FormatValue+0x28>
+		c[0] = ' ';
+	}
+
+	for (int i = 5; i > 2; i--)
+	{
+		c[i] = c[i-1];
  186:	fd 01       	movw	r30, r26
  188:	e2 0f       	add	r30, r18
  18a:	f3 1f       	adc	r31, r19
@@ -281,11 +391,22 @@ Disassembly of section .text:
  18e:	21 97       	sbiw	r28, 0x01	; 1
  190:	88 81       	ld	r24, Y
  192:	80 83       	st	Z, r24
+	if (c[0] == '0')
+	{
+		c[0] = ' ';
+	}
+
+	for (int i = 5; i > 2; i--)
  194:	21 50       	subi	r18, 0x01	; 1
  196:	31 09       	sbc	r19, r1
  198:	23 30       	cpi	r18, 0x03	; 3
  19a:	31 05       	cpc	r19, r1
  19c:	a4 f7       	brge	.-24     	; 0x186 <FormatValue+0x16>
+	{
+		c[i] = c[i-1];
+	}
+
+	c[2] = ',';
  19e:	8c e2       	ldi	r24, 0x2C	; 44
  1a0:	12 96       	adiw	r26, 0x02	; 2
  1a2:	8c 93       	st	X, r24
@@ -294,6 +415,12 @@ Disassembly of section .text:
  1a8:	08 95       	ret
 
 000001aa <DisplayUpdate>:
+	DisplayEnablePulse();
+	_delay_ms(2);
+}
+
+void DisplayUpdate(uint16_t setVoltage, uint16_t measuredVoltage, uint16_t setCurrent, uint16_t measuredCurrent)
+{
  1aa:	cf 92       	push	r12
  1ac:	df 92       	push	r13
  1ae:	ef 92       	push	r14
@@ -313,48 +440,73 @@ Disassembly of section .text:
  1ca:	6b 01       	movw	r12, r22
  1cc:	7a 01       	movw	r14, r20
  1ce:	89 01       	movw	r16, r18
+	/* Declare local char arrays for ASCII codes */
+	char c_setVoltage[6], c_measuredVoltage[6], c_setCurrent[6], c_measuredCurrent[6];
+
+	/* Transform values to ASCII */
+	IntegerToASCII(setVoltage, c_setVoltage);
  1d0:	be 01       	movw	r22, r28
  1d2:	6f 5f       	subi	r22, 0xFF	; 255
  1d4:	7f 4f       	sbci	r23, 0xFF	; 255
  1d6:	a1 df       	rcall	.-190    	; 0x11a <IntegerToASCII>
+	IntegerToASCII(measuredVoltage, c_measuredVoltage);
  1d8:	be 01       	movw	r22, r28
  1da:	69 5f       	subi	r22, 0xF9	; 249
  1dc:	7f 4f       	sbci	r23, 0xFF	; 255
  1de:	c6 01       	movw	r24, r12
  1e0:	9c df       	rcall	.-200    	; 0x11a <IntegerToASCII>
+	IntegerToASCII(setCurrent, c_setCurrent);
  1e2:	be 01       	movw	r22, r28
  1e4:	63 5f       	subi	r22, 0xF3	; 243
  1e6:	7f 4f       	sbci	r23, 0xFF	; 255
  1e8:	c7 01       	movw	r24, r14
  1ea:	97 df       	rcall	.-210    	; 0x11a <IntegerToASCII>
+	IntegerToASCII(measuredCurrent, c_measuredCurrent);
  1ec:	be 01       	movw	r22, r28
  1ee:	6d 5e       	subi	r22, 0xED	; 237
  1f0:	7f 4f       	sbci	r23, 0xFF	; 255
  1f2:	c8 01       	movw	r24, r16
  1f4:	92 df       	rcall	.-220    	; 0x11a <IntegerToASCII>
+
+	/* Format the strings for the LCD */
+	FormatValue(c_setVoltage);
  1f6:	ce 01       	movw	r24, r28
  1f8:	01 96       	adiw	r24, 0x01	; 1
  1fa:	ba df       	rcall	.-140    	; 0x170 <FormatValue>
+	FormatValue(c_measuredVoltage);
  1fc:	ce 01       	movw	r24, r28
  1fe:	07 96       	adiw	r24, 0x07	; 7
  200:	b7 df       	rcall	.-146    	; 0x170 <FormatValue>
+	FormatValue(c_setCurrent);
  202:	ce 01       	movw	r24, r28
  204:	0d 96       	adiw	r24, 0x0d	; 13
  206:	b4 df       	rcall	.-152    	; 0x170 <FormatValue>
+	FormatValue(c_measuredCurrent);
  208:	ce 01       	movw	r24, r28
  20a:	43 96       	adiw	r24, 0x13	; 19
  20c:	b1 df       	rcall	.-158    	; 0x170 <FormatValue>
+
+	BIT_CLEAR(DISPLAY_CTL, DISPLAY_RS);
  20e:	82 b1       	in	r24, 0x02	; 2
  210:	8e 7f       	andi	r24, 0xFE	; 254
  212:	82 b9       	out	0x02, r24	; 2
+	DISPLAY_DATA = 0b10;
  214:	82 e0       	ldi	r24, 0x02	; 2
  216:	8a b9       	out	0x0a, r24	; 10
+	DisplayEnablePulse();
  218:	2c df       	rcall	.-424    	; 0x72 <DisplayEnablePulse>
+
+	/* Print set voltage */
+	DisplaySetDDRAM(ADDR_VOLTAGE_SET);
  21a:	80 e0       	ldi	r24, 0x00	; 0
  21c:	71 df       	rcall	.-286    	; 0x100 <DisplaySetDDRAM>
+
+	for (int i = 0; i < 6; i++)
  21e:	00 e0       	ldi	r16, 0x00	; 0
  220:	10 e0       	ldi	r17, 0x00	; 0
  222:	0a c0       	rjmp	.+20     	; 0x238 <__DATA_REGION_LENGTH__+0x38>
+	{
+		DisplayWriteChar(c_setVoltage[i]);
  224:	e1 e0       	ldi	r30, 0x01	; 1
  226:	f0 e0       	ldi	r31, 0x00	; 0
  228:	ec 0f       	add	r30, r28
@@ -363,18 +515,35 @@ Disassembly of section .text:
  22e:	f1 1f       	adc	r31, r17
  230:	80 81       	ld	r24, Z
  232:	6d df       	rcall	.-294    	; 0x10e <DisplayWriteChar>
+	DisplayEnablePulse();
+
+	/* Print set voltage */
+	DisplaySetDDRAM(ADDR_VOLTAGE_SET);
+
+	for (int i = 0; i < 6; i++)
  234:	0f 5f       	subi	r16, 0xFF	; 255
  236:	1f 4f       	sbci	r17, 0xFF	; 255
  238:	06 30       	cpi	r16, 0x06	; 6
  23a:	11 05       	cpc	r17, r1
  23c:	9c f3       	brlt	.-26     	; 0x224 <__DATA_REGION_LENGTH__+0x24>
+	{
+		DisplayWriteChar(c_setVoltage[i]);
+	}
+	DisplayWriteChar('V');
  23e:	86 e5       	ldi	r24, 0x56	; 86
  240:	66 df       	rcall	.-308    	; 0x10e <DisplayWriteChar>
+
+	/* Print measured voltage */
+	DisplaySetDDRAM(ADDR_VOLTAGE_MEAS);
  242:	89 e0       	ldi	r24, 0x09	; 9
  244:	5d df       	rcall	.-326    	; 0x100 <DisplaySetDDRAM>
+
+	for (int i = 0; i < 6; i++)
  246:	00 e0       	ldi	r16, 0x00	; 0
  248:	10 e0       	ldi	r17, 0x00	; 0
  24a:	0a c0       	rjmp	.+20     	; 0x260 <__DATA_REGION_LENGTH__+0x60>
+	{
+		DisplayWriteChar(c_measuredVoltage[i]);
  24c:	e7 e0       	ldi	r30, 0x07	; 7
  24e:	f0 e0       	ldi	r31, 0x00	; 0
  250:	ec 0f       	add	r30, r28
@@ -383,18 +552,35 @@ Disassembly of section .text:
  256:	f1 1f       	adc	r31, r17
  258:	80 81       	ld	r24, Z
  25a:	59 df       	rcall	.-334    	; 0x10e <DisplayWriteChar>
+	DisplayWriteChar('V');
+
+	/* Print measured voltage */
+	DisplaySetDDRAM(ADDR_VOLTAGE_MEAS);
+
+	for (int i = 0; i < 6; i++)
  25c:	0f 5f       	subi	r16, 0xFF	; 255
  25e:	1f 4f       	sbci	r17, 0xFF	; 255
  260:	06 30       	cpi	r16, 0x06	; 6
  262:	11 05       	cpc	r17, r1
  264:	9c f3       	brlt	.-26     	; 0x24c <__DATA_REGION_LENGTH__+0x4c>
+	{
+		DisplayWriteChar(c_measuredVoltage[i]);
+	}
+	DisplayWriteChar('V');
  266:	86 e5       	ldi	r24, 0x56	; 86
  268:	52 df       	rcall	.-348    	; 0x10e <DisplayWriteChar>
+
+	/* Print set current */
+	DisplaySetDDRAM(ADDR_CURRENT_SET);
  26a:	80 e4       	ldi	r24, 0x40	; 64
  26c:	49 df       	rcall	.-366    	; 0x100 <DisplaySetDDRAM>
+
+	for (int i = 0; i < 6; i++)
  26e:	00 e0       	ldi	r16, 0x00	; 0
  270:	10 e0       	ldi	r17, 0x00	; 0
  272:	0a c0       	rjmp	.+20     	; 0x288 <__DATA_REGION_LENGTH__+0x88>
+	{
+		DisplayWriteChar(c_setCurrent[i]);
  274:	ed e0       	ldi	r30, 0x0D	; 13
  276:	f0 e0       	ldi	r31, 0x00	; 0
  278:	ec 0f       	add	r30, r28
@@ -403,18 +589,35 @@ Disassembly of section .text:
  27e:	f1 1f       	adc	r31, r17
  280:	80 81       	ld	r24, Z
  282:	45 df       	rcall	.-374    	; 0x10e <DisplayWriteChar>
+	DisplayWriteChar('V');
+
+	/* Print set current */
+	DisplaySetDDRAM(ADDR_CURRENT_SET);
+
+	for (int i = 0; i < 6; i++)
  284:	0f 5f       	subi	r16, 0xFF	; 255
  286:	1f 4f       	sbci	r17, 0xFF	; 255
  288:	06 30       	cpi	r16, 0x06	; 6
  28a:	11 05       	cpc	r17, r1
  28c:	9c f3       	brlt	.-26     	; 0x274 <__DATA_REGION_LENGTH__+0x74>
+	{
+		DisplayWriteChar(c_setCurrent[i]);
+	}
+	DisplayWriteChar('A');
  28e:	81 e4       	ldi	r24, 0x41	; 65
  290:	3e df       	rcall	.-388    	; 0x10e <DisplayWriteChar>
+
+	/* Print measured current */
+	DisplaySetDDRAM(ADDR_CURRENT_MEAS);
  292:	89 e4       	ldi	r24, 0x49	; 73
  294:	35 df       	rcall	.-406    	; 0x100 <DisplaySetDDRAM>
+
+	for (int i = 0; i < 6; i++)
  296:	00 e0       	ldi	r16, 0x00	; 0
  298:	10 e0       	ldi	r17, 0x00	; 0
  29a:	0a c0       	rjmp	.+20     	; 0x2b0 <__DATA_REGION_LENGTH__+0xb0>
+	{
+		DisplayWriteChar(c_measuredCurrent[i]);
  29c:	e3 e1       	ldi	r30, 0x13	; 19
  29e:	f0 e0       	ldi	r31, 0x00	; 0
  2a0:	ec 0f       	add	r30, r28
@@ -423,13 +626,24 @@ Disassembly of section .text:
  2a6:	f1 1f       	adc	r31, r17
  2a8:	80 81       	ld	r24, Z
  2aa:	31 df       	rcall	.-414    	; 0x10e <DisplayWriteChar>
+	DisplayWriteChar('A');
+
+	/* Print measured current */
+	DisplaySetDDRAM(ADDR_CURRENT_MEAS);
+
+	for (int i = 0; i < 6; i++)
  2ac:	0f 5f       	subi	r16, 0xFF	; 255
  2ae:	1f 4f       	sbci	r17, 0xFF	; 255
  2b0:	06 30       	cpi	r16, 0x06	; 6
  2b2:	11 05       	cpc	r17, r1
  2b4:	9c f3       	brlt	.-26     	; 0x29c <__DATA_REGION_LENGTH__+0x9c>
+	{
+		DisplayWriteChar(c_measuredCurrent[i]);
+	}
+	DisplayWriteChar('A');
  2b6:	81 e4       	ldi	r24, 0x41	; 65
  2b8:	2a df       	rcall	.-428    	; 0x10e <DisplayWriteChar>
+}
  2ba:	68 96       	adiw	r28, 0x18	; 24
  2bc:	0f b6       	in	r0, 0x3f	; 63
  2be:	f8 94       	cli
@@ -447,95 +661,46 @@ Disassembly of section .text:
  2d6:	08 95       	ret
 
 000002d8 <ClockPrescalerSet1>:
-    }
-}
-
-void ClockPrescalerSet1()
-{
-	CCP = 0xd8;
  2d8:	88 ed       	ldi	r24, 0xD8	; 216
  2da:	86 bf       	out	0x36, r24	; 54
-	CLKPR = 0b00000000;
  2dc:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <__TEXT_REGION_LENGTH__+0x7fe061>
  2e0:	08 95       	ret
 
 000002e2 <IOInit>:
-}
-
-void IOInit()
-{
-	DDRA = 0x07;
  2e2:	87 e0       	ldi	r24, 0x07	; 7
  2e4:	81 b9       	out	0x01, r24	; 1
-	DDRB = 0x00;
  2e6:	15 b8       	out	0x05, r1	; 5
-	DDRC = 0xff;
  2e8:	8f ef       	ldi	r24, 0xFF	; 255
  2ea:	89 b9       	out	0x09, r24	; 9
  2ec:	08 95       	ret
 
 000002ee <main>:
-
-/* main */
-int main(void)
-{
-	/* f clock -> 8 MHz */
-	ClockPrescalerSet1();
  2ee:	f4 df       	rcall	.-24     	; 0x2d8 <ClockPrescalerSet1>
-
-	/* Initialize IO */
-	IOInit();
  2f0:	f8 df       	rcall	.-16     	; 0x2e2 <IOInit>
-
-	/* Initialize SPI */
-	SPI_MasterInit();
  2f2:	46 d1       	rcall	.+652    	; 0x580 <SPI_MasterInit>
-
-	/* Initialize Display */
-	DisplayInit();
  2f4:	d1 de       	rcall	.-606    	; 0x98 <DisplayInit>
-
-	/* Initialize rotary encoders */
-	rotaryEncoderInit();
  2f6:	41 d0       	rcall	.+130    	; 0x37a <rotaryEncoderInit>
-
-	setVoltage = 10000;
  2f8:	80 e1       	ldi	r24, 0x10	; 16
  2fa:	97 e2       	ldi	r25, 0x27	; 39
  2fc:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  300:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
-	setCurrent = 250;
  304:	8a ef       	ldi	r24, 0xFA	; 250
  306:	90 e0       	ldi	r25, 0x00	; 0
  308:	90 93 05 01 	sts	0x0105, r25	; 0x800105 <setCurrent+0x1>
  30c:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <setCurrent>
-
-    while (1)
-    {
-		/* Set voltage */
-		DAC_Set(DAC_VOLTAGE, setVoltage / 5);
  310:	80 91 06 01 	lds	r24, 0x0106	; 0x800106 <setVoltage>
  314:	90 91 07 01 	lds	r25, 0x0107	; 0x800107 <setVoltage+0x1>
  318:	65 e0       	ldi	r22, 0x05	; 5
  31a:	70 e0       	ldi	r23, 0x00	; 0
- 31c:	93 d1       	rcall	.+806    	; 0x644 <__udivmodhi4>
+ 31c:	9f d1       	rcall	.+830    	; 0x65c <__udivmodhi4>
  31e:	81 e0       	ldi	r24, 0x01	; 1
  320:	5d d1       	rcall	.+698    	; 0x5dc <DAC_Set>
-
-		/* Set current */
-		DAC_Set(DAC_CURRENT, setCurrent << 1);
  322:	60 91 04 01 	lds	r22, 0x0104	; 0x800104 <setCurrent>
  326:	70 91 05 01 	lds	r23, 0x0105	; 0x800105 <setCurrent+0x1>
  32a:	66 0f       	add	r22, r22
  32c:	77 1f       	adc	r23, r23
  32e:	80 e0       	ldi	r24, 0x00	; 0
  330:	55 d1       	rcall	.+682    	; 0x5dc <DAC_Set>
-
-		/*
-		 * Measure voltage
-		 * 12-bit resolution measures voltage in steps of 5 mV
-		 */
-		measuredVoltage = ADC_Read(ADC_VOLTAGE) * 5;
  332:	81 e0       	ldi	r24, 0x01	; 1
  334:	6c d1       	rcall	.+728    	; 0x60e <ADC_Read>
  336:	9c 01       	movw	r18, r24
@@ -547,12 +712,6 @@ int main(void)
  342:	93 1f       	adc	r25, r19
  344:	90 93 03 01 	sts	0x0103, r25	; 0x800103 <measuredVoltage+0x1>
  348:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <measuredVoltage>
-		/*
-		 * Measure current
-		 * 12-bit resolution measures current in steps of 0.5 mA
-		 * only 11 bits are used -> steps of 1 mA
-		 */
-		measuredCurrent = ADC_Read(ADC_CURRENT) >> 1;
  34c:	80 e0       	ldi	r24, 0x00	; 0
  34e:	5f d1       	rcall	.+702    	; 0x60e <ADC_Read>
  350:	9c 01       	movw	r18, r24
@@ -560,9 +719,6 @@ int main(void)
  354:	27 95       	ror	r18
  356:	30 93 01 01 	sts	0x0101, r19	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
  35a:	20 93 00 01 	sts	0x0100, r18	; 0x800100 <__DATA_REGION_ORIGIN__>
-
-		/* Update the LCD display */
-		DisplayUpdate(setVoltage, measuredVoltage, setCurrent, measuredCurrent);
  35e:	40 91 04 01 	lds	r20, 0x0104	; 0x800104 <setCurrent>
  362:	50 91 05 01 	lds	r21, 0x0105	; 0x800105 <setCurrent+0x1>
  366:	60 91 02 01 	lds	r22, 0x0102	; 0x800102 <measuredVoltage>
@@ -573,46 +729,29 @@ int main(void)
  378:	cb cf       	rjmp	.-106    	; 0x310 <__stack+0x11>
 
 0000037a <rotaryEncoderInit>:
-extern uint16_t setCurrent;
-
-void rotaryEncoderInit()
-{
-	/* Enable interrupt for change on rotary encoder pins */
-	BIT_SET(PCMSK1, PCINT10);
  37a:	ec e6       	ldi	r30, 0x6C	; 108
  37c:	f0 e0       	ldi	r31, 0x00	; 0
  37e:	80 81       	ld	r24, Z
  380:	84 60       	ori	r24, 0x04	; 4
  382:	80 83       	st	Z, r24
-	BIT_SET(PCMSK1, PCINT11);
  384:	80 81       	ld	r24, Z
  386:	88 60       	ori	r24, 0x08	; 8
  388:	80 83       	st	Z, r24
-	BIT_SET(PCMSK1, PCINT12);
  38a:	80 81       	ld	r24, Z
  38c:	80 61       	ori	r24, 0x10	; 16
  38e:	80 83       	st	Z, r24
-	BIT_SET(PCMSK1, PCINT13);
  390:	80 81       	ld	r24, Z
  392:	80 62       	ori	r24, 0x20	; 32
  394:	80 83       	st	Z, r24
-	BIT_SET(PCICR, PCIE1);
  396:	e8 e6       	ldi	r30, 0x68	; 104
  398:	f0 e0       	ldi	r31, 0x00	; 0
  39a:	80 81       	ld	r24, Z
  39c:	82 60       	ori	r24, 0x02	; 2
  39e:	80 83       	st	Z, r24
-
-	/* Enable global interrupts */
-	sei();
  3a0:	78 94       	sei
  3a2:	08 95       	ret
 
 000003a4 <__vector_4>:
-}
-
-ISR(PCINT1_vect, ISR_BLOCK)
-{
  3a4:	1f 92       	push	r1
  3a6:	0f 92       	push	r0
  3a8:	0f b6       	in	r0, 0x3f	; 63
@@ -628,31 +767,22 @@ ISR(PCINT1_vect, ISR_BLOCK)
  3bc:	bf 93       	push	r27
  3be:	ef 93       	push	r30
  3c0:	ff 93       	push	r31
-	static uint8_t voltageState = 0;
-	static uint8_t currentState = 0;
-	uint8_t voltageClkState = BIT_CHECK(ENC_PORT, ENC_VOLTAGE_CLK);
  3c2:	84 b1       	in	r24, 0x04	; 4
  3c4:	82 fb       	bst	r24, 2
  3c6:	22 27       	eor	r18, r18
  3c8:	20 f9       	bld	r18, 0
-	uint8_t voltageDataState = BIT_CHECK(ENC_PORT, ENC_VOLTAGE_DT);
  3ca:	84 b1       	in	r24, 0x04	; 4
  3cc:	83 fb       	bst	r24, 3
  3ce:	33 27       	eor	r19, r19
  3d0:	30 f9       	bld	r19, 0
-	uint8_t currentClkState = BIT_CHECK(ENC_PORT, ENC_CURRENT_CLK);
  3d2:	84 b1       	in	r24, 0x04	; 4
  3d4:	84 fb       	bst	r24, 4
  3d6:	55 27       	eor	r21, r21
  3d8:	50 f9       	bld	r21, 0
-	uint8_t currentDataState = BIT_CHECK(ENC_PORT, ENC_CURRENT_DT);
  3da:	84 b1       	in	r24, 0x04	; 4
  3dc:	85 fb       	bst	r24, 5
  3de:	44 27       	eor	r20, r20
  3e0:	40 f9       	bld	r20, 0
-
-	/* Rotary encoder voltage */
-	switch (voltageState)
  3e2:	e0 91 09 01 	lds	r30, 0x0109	; 0x800109 <voltageState.1616>
  3e6:	8e 2f       	mov	r24, r30
  3e8:	90 e0       	ldi	r25, 0x00	; 0
@@ -664,138 +794,70 @@ ISR(PCINT1_vect, ISR_BLOCK)
  3f4:	e6 5e       	subi	r30, 0xE6	; 230
  3f6:	ff 4f       	sbci	r31, 0xFF	; 255
  3f8:	09 94       	ijmp
-	{
-		/* Idle state */
-		case 0:
-		if (!voltageClkState) // CW
  3fa:	21 11       	cpse	r18, r1
  3fc:	04 c0       	rjmp	.+8      	; 0x406 <__LOCK_REGION_LENGTH__+0x6>
-		{
-			voltageState = 1;
  3fe:	81 e0       	ldi	r24, 0x01	; 1
  400:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  404:	4e c0       	rjmp	.+156    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		}
-		else if (!voltageDataState) // CCW
  406:	31 11       	cpse	r19, r1
  408:	4c c0       	rjmp	.+152    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		{
-			voltageState = 4;
  40a:	84 e0       	ldi	r24, 0x04	; 4
  40c:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  410:	48 c0       	rjmp	.+144    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		}
-		break;
-
-		/* Clockwise rotation */
-		case 1:
-		if (!voltageDataState)
  412:	31 11       	cpse	r19, r1
  414:	46 c0       	rjmp	.+140    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		{
-			voltageState = 2;
  416:	82 e0       	ldi	r24, 0x02	; 2
  418:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  41c:	42 c0       	rjmp	.+132    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		}
-		break;
-
-		case 2:
-		if (voltageClkState)
  41e:	22 23       	and	r18, r18
  420:	09 f4       	brne	.+2      	; 0x424 <__LOCK_REGION_LENGTH__+0x24>
  422:	3f c0       	rjmp	.+126    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		{
-			voltageState = 3;
  424:	83 e0       	ldi	r24, 0x03	; 3
  426:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  42a:	3b c0       	rjmp	.+118    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		}
-		break;
-
-		case 3:
-		if (voltageClkState && voltageDataState)
  42c:	22 23       	and	r18, r18
  42e:	c9 f1       	breq	.+114    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
  430:	33 23       	and	r19, r19
  432:	b9 f1       	breq	.+110    	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		{
-			voltageState = 0;
  434:	10 92 09 01 	sts	0x0109, r1	; 0x800109 <voltageState.1616>
-			setVoltage += 25;
  438:	80 91 06 01 	lds	r24, 0x0106	; 0x800106 <setVoltage>
  43c:	90 91 07 01 	lds	r25, 0x0107	; 0x800107 <setVoltage+0x1>
  440:	49 96       	adiw	r24, 0x19	; 25
  442:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  446:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
-			if (setVoltage > 20000)
  44a:	81 32       	cpi	r24, 0x21	; 33
  44c:	9e 44       	sbci	r25, 0x4E	; 78
  44e:	48 f1       	brcs	.+82     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-			{
-				setVoltage = 20000;
  450:	80 e2       	ldi	r24, 0x20	; 32
  452:	9e e4       	ldi	r25, 0x4E	; 78
  454:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  458:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
  45c:	22 c0       	rjmp	.+68     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		}
-		break;
-
-		/* Counter clockwise rotation */
-		case 4:
-		if (!voltageClkState)
  45e:	21 11       	cpse	r18, r1
  460:	20 c0       	rjmp	.+64     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		{
-			voltageState = 5;
  462:	85 e0       	ldi	r24, 0x05	; 5
  464:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  468:	1c c0       	rjmp	.+56     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		}
-		break;
-
-		case 5:
-		if (voltageDataState)
  46a:	33 23       	and	r19, r19
  46c:	d1 f0       	breq	.+52     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		{
-			voltageState = 6;
  46e:	86 e0       	ldi	r24, 0x06	; 6
  470:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <voltageState.1616>
  474:	16 c0       	rjmp	.+44     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		}
-		break;
-
-		case 6:
-		if (voltageClkState && voltageDataState)
  476:	22 23       	and	r18, r18
  478:	a1 f0       	breq	.+40     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
  47a:	33 23       	and	r19, r19
  47c:	91 f0       	breq	.+36     	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-		{
-			voltageState = 0;
  47e:	10 92 09 01 	sts	0x0109, r1	; 0x800109 <voltageState.1616>
-			setVoltage -= 25;
  482:	80 91 06 01 	lds	r24, 0x0106	; 0x800106 <setVoltage>
  486:	90 91 07 01 	lds	r25, 0x0107	; 0x800107 <setVoltage+0x1>
  48a:	49 97       	sbiw	r24, 0x19	; 25
  48c:	90 93 07 01 	sts	0x0107, r25	; 0x800107 <setVoltage+0x1>
  490:	80 93 06 01 	sts	0x0106, r24	; 0x800106 <setVoltage>
-			if (setVoltage > 20000)
  494:	81 32       	cpi	r24, 0x21	; 33
  496:	9e 44       	sbci	r25, 0x4E	; 78
  498:	20 f0       	brcs	.+8      	; 0x4a2 <__LOCK_REGION_LENGTH__+0xa2>
-			{
-				setVoltage = 0;
  49a:	10 92 07 01 	sts	0x0107, r1	; 0x800107 <setVoltage+0x1>
  49e:	10 92 06 01 	sts	0x0106, r1	; 0x800106 <setVoltage>
-		}
-		break;
-	}
-
-	/* Rotary encoder current */
-	switch (currentState)
  4a2:	e0 91 08 01 	lds	r30, 0x0108	; 0x800108 <currentState.1617>
  4a6:	8e 2f       	mov	r24, r30
  4a8:	90 e0       	ldi	r25, 0x00	; 0
@@ -807,136 +869,70 @@ ISR(PCINT1_vect, ISR_BLOCK)
  4b4:	ef 5d       	subi	r30, 0xDF	; 223
  4b6:	ff 4f       	sbci	r31, 0xFF	; 255
  4b8:	09 94       	ijmp
-	{
-		/* Idle state */
-		case 0:
-		if (!currentClkState) // CW
  4ba:	51 11       	cpse	r21, r1
  4bc:	04 c0       	rjmp	.+8      	; 0x4c6 <__LOCK_REGION_LENGTH__+0xc6>
-		{
-			currentState = 1;
  4be:	81 e0       	ldi	r24, 0x01	; 1
  4c0:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4c4:	4e c0       	rjmp	.+156    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		}
-		else if (!currentDataState) // CCW
  4c6:	41 11       	cpse	r20, r1
  4c8:	4c c0       	rjmp	.+152    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		{
-			currentState = 4;
  4ca:	84 e0       	ldi	r24, 0x04	; 4
  4cc:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4d0:	48 c0       	rjmp	.+144    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		}
-		break;
-
-		/* Clockwise rotation */
-		case 1:
-		if (!currentDataState)
  4d2:	41 11       	cpse	r20, r1
  4d4:	46 c0       	rjmp	.+140    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		{
-			currentState = 2;
  4d6:	82 e0       	ldi	r24, 0x02	; 2
  4d8:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4dc:	42 c0       	rjmp	.+132    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		}
-		break;
-
-		case 2:
-		if (currentClkState)
  4de:	55 23       	and	r21, r21
  4e0:	09 f4       	brne	.+2      	; 0x4e4 <__LOCK_REGION_LENGTH__+0xe4>
  4e2:	3f c0       	rjmp	.+126    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		{
-			currentState = 3;
  4e4:	83 e0       	ldi	r24, 0x03	; 3
  4e6:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  4ea:	3b c0       	rjmp	.+118    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		}
-		break;
-
-		case 3:
-		if (currentClkState && currentDataState)
  4ec:	55 23       	and	r21, r21
  4ee:	c9 f1       	breq	.+114    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
  4f0:	44 23       	and	r20, r20
  4f2:	b9 f1       	breq	.+110    	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		{
-			currentState = 0;
  4f4:	10 92 08 01 	sts	0x0108, r1	; 0x800108 <currentState.1617>
-			setCurrent += 1;
  4f8:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <setCurrent>
  4fc:	90 91 05 01 	lds	r25, 0x0105	; 0x800105 <setCurrent+0x1>
  500:	01 96       	adiw	r24, 0x01	; 1
  502:	90 93 05 01 	sts	0x0105, r25	; 0x800105 <setCurrent+0x1>
  506:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <setCurrent>
-			if (setCurrent > 2000)
  50a:	81 3d       	cpi	r24, 0xD1	; 209
  50c:	97 40       	sbci	r25, 0x07	; 7
  50e:	48 f1       	brcs	.+82     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-			{
-				setCurrent = 2000;
  510:	80 ed       	ldi	r24, 0xD0	; 208
  512:	97 e0       	ldi	r25, 0x07	; 7
  514:	90 93 05 01 	sts	0x0105, r25	; 0x800105 <setCurrent+0x1>
  518:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <setCurrent>
  51c:	22 c0       	rjmp	.+68     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		}
-		break;
-
-		/* Counter clockwise rotation */
-		case 4:
-		if (!currentClkState)
  51e:	51 11       	cpse	r21, r1
  520:	20 c0       	rjmp	.+64     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		{
-			currentState = 5;
  522:	85 e0       	ldi	r24, 0x05	; 5
  524:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  528:	1c c0       	rjmp	.+56     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		}
-		break;
-
-		case 5:
-		if (currentDataState)
  52a:	44 23       	and	r20, r20
  52c:	d1 f0       	breq	.+52     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		{
-			currentState = 6;
  52e:	86 e0       	ldi	r24, 0x06	; 6
  530:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <currentState.1617>
  534:	16 c0       	rjmp	.+44     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		}
-		break;
-
-		case 6:
-		if (currentClkState && currentDataState)
  536:	55 23       	and	r21, r21
  538:	a1 f0       	breq	.+40     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
  53a:	44 23       	and	r20, r20
  53c:	91 f0       	breq	.+36     	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-		{
-			currentState = 0;
  53e:	10 92 08 01 	sts	0x0108, r1	; 0x800108 <currentState.1617>
-			setCurrent -= 1;
  542:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <setCurrent>
  546:	90 91 05 01 	lds	r25, 0x0105	; 0x800105 <setCurrent+0x1>
  54a:	01 97       	sbiw	r24, 0x01	; 1
  54c:	90 93 05 01 	sts	0x0105, r25	; 0x800105 <setCurrent+0x1>
  550:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <setCurrent>
-			if (setCurrent > 2000)
  554:	81 3d       	cpi	r24, 0xD1	; 209
  556:	97 40       	sbci	r25, 0x07	; 7
  558:	20 f0       	brcs	.+8      	; 0x562 <__LOCK_REGION_LENGTH__+0x162>
-			{
-				setCurrent = 0;
  55a:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <setCurrent+0x1>
  55e:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <setCurrent>
-			}
-		}
-		break;
-	}
  562:	ff 91       	pop	r31
  564:	ef 91       	pop	r30
  566:	bf 91       	pop	r27
@@ -1006,7 +1002,7 @@ void ChipSelect(uint8_t pin, uint8_t state)
  5a8:	70 e0       	ldi	r23, 0x00	; 0
  5aa:	80 e0       	ldi	r24, 0x00	; 0
  5ac:	90 e0       	ldi	r25, 0x00	; 0
- 5ae:	71 d0       	rcall	.+226    	; 0x692 <__ashldi3>
+ 5ae:	7d d0       	rcall	.+250    	; 0x6aa <__ashldi3>
  5b0:	e2 2b       	or	r30, r18
  5b2:	e5 b9       	out	0x05, r30	; 5
 			BIT_CLEAR(PORTB, pin);
@@ -1029,7 +1025,7 @@ void ChipSelect(uint8_t pin, uint8_t state)
  5ca:	70 e0       	ldi	r23, 0x00	; 0
  5cc:	80 e0       	ldi	r24, 0x00	; 0
  5ce:	90 e0       	ldi	r25, 0x00	; 0
- 5d0:	60 d0       	rcall	.+192    	; 0x692 <__ashldi3>
+ 5d0:	6c d0       	rcall	.+216    	; 0x6aa <__ashldi3>
  5d2:	20 95       	com	r18
  5d4:	e2 23       	and	r30, r18
  5d6:	e5 b9       	out	0x05, r30	; 5
@@ -1105,111 +1101,125 @@ uint16_t ADC_Read(uint8_t channel)
 	SPI_MasterTransmit(dataOut);
  622:	8c 2f       	mov	r24, r28
  624:	b2 df       	rcall	.-156    	; 0x58a <SPI_MasterTransmit>
-	data = SPDR << 8;
+	data = SPDR << 9;
  626:	8e b5       	in	r24, 0x2e	; 46
  628:	90 e0       	ldi	r25, 0x00	; 0
  62a:	c9 2f       	mov	r28, r25
  62c:	d8 2f       	mov	r29, r24
+ 62e:	dd 0f       	add	r29, r29
 	SPI_MasterTransmit(0x00);
- 62e:	80 e0       	ldi	r24, 0x00	; 0
- 630:	ac df       	rcall	.-168    	; 0x58a <SPI_MasterTransmit>
-	data |= SPDR;
- 632:	8e b5       	in	r24, 0x2e	; 46
- 634:	c8 2b       	or	r28, r24
+ 630:	80 e0       	ldi	r24, 0x00	; 0
+ 632:	ab df       	rcall	.-170    	; 0x58a <SPI_MasterTransmit>
+	data |= SPDR << 1;
+ 634:	8e b5       	in	r24, 0x2e	; 46
+ 636:	90 e0       	ldi	r25, 0x00	; 0
+ 638:	88 0f       	add	r24, r24
+ 63a:	99 1f       	adc	r25, r25
+ 63c:	c8 2b       	or	r28, r24
+ 63e:	d9 2b       	or	r29, r25
+	SPI_MasterTransmit(0x00);
+ 640:	80 e0       	ldi	r24, 0x00	; 0
+ 642:	a3 df       	rcall	.-186    	; 0x58a <SPI_MasterTransmit>
+	data |= SPDR >> 7;
+ 644:	8e b5       	in	r24, 0x2e	; 46
+ 646:	88 1f       	adc	r24, r24
+ 648:	88 27       	eor	r24, r24
+ 64a:	88 1f       	adc	r24, r24
+ 64c:	c8 2b       	or	r28, r24
 	ChipSelect(CS_ADC, INACTIVE);
- 636:	60 e0       	ldi	r22, 0x00	; 0
- 638:	80 e0       	ldi	r24, 0x00	; 0
- 63a:	ac df       	rcall	.-168    	; 0x594 <ChipSelect>
+ 64e:	60 e0       	ldi	r22, 0x00	; 0
+ 650:	80 e0       	ldi	r24, 0x00	; 0
+ 652:	a0 df       	rcall	.-192    	; 0x594 <ChipSelect>
 
 	return data;
 }
- 63c:	ce 01       	movw	r24, r28
- 63e:	df 91       	pop	r29
- 640:	cf 91       	pop	r28
- 642:	08 95       	ret
+ 654:	ce 01       	movw	r24, r28
+ 656:	df 91       	pop	r29
+ 658:	cf 91       	pop	r28
+ 65a:	08 95       	ret
 
-00000644 <__udivmodhi4>:
- 644:	aa 1b       	sub	r26, r26
- 646:	bb 1b       	sub	r27, r27
- 648:	51 e1       	ldi	r21, 0x11	; 17
- 64a:	07 c0       	rjmp	.+14     	; 0x65a <__udivmodhi4_ep>
+0000065c <__udivmodhi4>:
+ 65c:	aa 1b       	sub	r26, r26
+ 65e:	bb 1b       	sub	r27, r27
+ 660:	51 e1       	ldi	r21, 0x11	; 17
+ 662:	07 c0       	rjmp	.+14     	; 0x672 <__udivmodhi4_ep>
 
-0000064c <__udivmodhi4_loop>:
- 64c:	aa 1f       	adc	r26, r26
- 64e:	bb 1f       	adc	r27, r27
- 650:	a6 17       	cp	r26, r22
- 652:	b7 07       	cpc	r27, r23
- 654:	10 f0       	brcs	.+4      	; 0x65a <__udivmodhi4_ep>
- 656:	a6 1b       	sub	r26, r22
- 658:	b7 0b       	sbc	r27, r23
+00000664 <__udivmodhi4_loop>:
+ 664:	aa 1f       	adc	r26, r26
+ 666:	bb 1f       	adc	r27, r27
+ 668:	a6 17       	cp	r26, r22
+ 66a:	b7 07       	cpc	r27, r23
+ 66c:	10 f0       	brcs	.+4      	; 0x672 <__udivmodhi4_ep>
+ 66e:	a6 1b       	sub	r26, r22
+ 670:	b7 0b       	sbc	r27, r23
 
-0000065a <__udivmodhi4_ep>:
- 65a:	88 1f       	adc	r24, r24
- 65c:	99 1f       	adc	r25, r25
- 65e:	5a 95       	dec	r21
- 660:	a9 f7       	brne	.-22     	; 0x64c <__udivmodhi4_loop>
- 662:	80 95       	com	r24
- 664:	90 95       	com	r25
- 666:	bc 01       	movw	r22, r24
- 668:	cd 01       	movw	r24, r26
- 66a:	08 95       	ret
+00000672 <__udivmodhi4_ep>:
+ 672:	88 1f       	adc	r24, r24
+ 674:	99 1f       	adc	r25, r25
+ 676:	5a 95       	dec	r21
+ 678:	a9 f7       	brne	.-22     	; 0x664 <__udivmodhi4_loop>
+ 67a:	80 95       	com	r24
+ 67c:	90 95       	com	r25
+ 67e:	bc 01       	movw	r22, r24
+ 680:	cd 01       	movw	r24, r26
+ 682:	08 95       	ret
 
-0000066c <__divmodhi4>:
- 66c:	97 fb       	bst	r25, 7
- 66e:	07 2e       	mov	r0, r23
- 670:	16 f4       	brtc	.+4      	; 0x676 <__divmodhi4+0xa>
- 672:	00 94       	com	r0
- 674:	06 d0       	rcall	.+12     	; 0x682 <__divmodhi4_neg1>
- 676:	77 fd       	sbrc	r23, 7
- 678:	08 d0       	rcall	.+16     	; 0x68a <__divmodhi4_neg2>
- 67a:	e4 df       	rcall	.-56     	; 0x644 <__udivmodhi4>
- 67c:	07 fc       	sbrc	r0, 7
- 67e:	05 d0       	rcall	.+10     	; 0x68a <__divmodhi4_neg2>
- 680:	3e f4       	brtc	.+14     	; 0x690 <__divmodhi4_exit>
+00000684 <__divmodhi4>:
+ 684:	97 fb       	bst	r25, 7
+ 686:	07 2e       	mov	r0, r23
+ 688:	16 f4       	brtc	.+4      	; 0x68e <__divmodhi4+0xa>
+ 68a:	00 94       	com	r0
+ 68c:	06 d0       	rcall	.+12     	; 0x69a <__divmodhi4_neg1>
+ 68e:	77 fd       	sbrc	r23, 7
+ 690:	08 d0       	rcall	.+16     	; 0x6a2 <__divmodhi4_neg2>
+ 692:	e4 df       	rcall	.-56     	; 0x65c <__udivmodhi4>
+ 694:	07 fc       	sbrc	r0, 7
+ 696:	05 d0       	rcall	.+10     	; 0x6a2 <__divmodhi4_neg2>
+ 698:	3e f4       	brtc	.+14     	; 0x6a8 <__divmodhi4_exit>
 
-00000682 <__divmodhi4_neg1>:
- 682:	90 95       	com	r25
- 684:	81 95       	neg	r24
- 686:	9f 4f       	sbci	r25, 0xFF	; 255
- 688:	08 95       	ret
+0000069a <__divmodhi4_neg1>:
+ 69a:	90 95       	com	r25
+ 69c:	81 95       	neg	r24
+ 69e:	9f 4f       	sbci	r25, 0xFF	; 255
+ 6a0:	08 95       	ret
 
-0000068a <__divmodhi4_neg2>:
- 68a:	70 95       	com	r23
- 68c:	61 95       	neg	r22
- 68e:	7f 4f       	sbci	r23, 0xFF	; 255
+000006a2 <__divmodhi4_neg2>:
+ 6a2:	70 95       	com	r23
+ 6a4:	61 95       	neg	r22
+ 6a6:	7f 4f       	sbci	r23, 0xFF	; 255
 
-00000690 <__divmodhi4_exit>:
- 690:	08 95       	ret
+000006a8 <__divmodhi4_exit>:
+ 6a8:	08 95       	ret
 
-00000692 <__ashldi3>:
- 692:	0f 93       	push	r16
- 694:	08 30       	cpi	r16, 0x08	; 8
- 696:	90 f0       	brcs	.+36     	; 0x6bc <__ashldi3+0x2a>
- 698:	98 2f       	mov	r25, r24
- 69a:	87 2f       	mov	r24, r23
- 69c:	76 2f       	mov	r23, r22
- 69e:	65 2f       	mov	r22, r21
- 6a0:	54 2f       	mov	r21, r20
- 6a2:	43 2f       	mov	r20, r19
- 6a4:	32 2f       	mov	r19, r18
- 6a6:	22 27       	eor	r18, r18
- 6a8:	08 50       	subi	r16, 0x08	; 8
- 6aa:	f4 cf       	rjmp	.-24     	; 0x694 <__ashldi3+0x2>
- 6ac:	22 0f       	add	r18, r18
- 6ae:	33 1f       	adc	r19, r19
- 6b0:	44 1f       	adc	r20, r20
- 6b2:	55 1f       	adc	r21, r21
- 6b4:	66 1f       	adc	r22, r22
- 6b6:	77 1f       	adc	r23, r23
- 6b8:	88 1f       	adc	r24, r24
- 6ba:	99 1f       	adc	r25, r25
- 6bc:	0a 95       	dec	r16
- 6be:	b2 f7       	brpl	.-20     	; 0x6ac <__ashldi3+0x1a>
- 6c0:	0f 91       	pop	r16
- 6c2:	08 95       	ret
+000006aa <__ashldi3>:
+ 6aa:	0f 93       	push	r16
+ 6ac:	08 30       	cpi	r16, 0x08	; 8
+ 6ae:	90 f0       	brcs	.+36     	; 0x6d4 <__ashldi3+0x2a>
+ 6b0:	98 2f       	mov	r25, r24
+ 6b2:	87 2f       	mov	r24, r23
+ 6b4:	76 2f       	mov	r23, r22
+ 6b6:	65 2f       	mov	r22, r21
+ 6b8:	54 2f       	mov	r21, r20
+ 6ba:	43 2f       	mov	r20, r19
+ 6bc:	32 2f       	mov	r19, r18
+ 6be:	22 27       	eor	r18, r18
+ 6c0:	08 50       	subi	r16, 0x08	; 8
+ 6c2:	f4 cf       	rjmp	.-24     	; 0x6ac <__ashldi3+0x2>
+ 6c4:	22 0f       	add	r18, r18
+ 6c6:	33 1f       	adc	r19, r19
+ 6c8:	44 1f       	adc	r20, r20
+ 6ca:	55 1f       	adc	r21, r21
+ 6cc:	66 1f       	adc	r22, r22
+ 6ce:	77 1f       	adc	r23, r23
+ 6d0:	88 1f       	adc	r24, r24
+ 6d2:	99 1f       	adc	r25, r25
+ 6d4:	0a 95       	dec	r16
+ 6d6:	b2 f7       	brpl	.-20     	; 0x6c4 <__ashldi3+0x1a>
+ 6d8:	0f 91       	pop	r16
+ 6da:	08 95       	ret
 
-000006c4 <_exit>:
- 6c4:	f8 94       	cli
+000006dc <_exit>:
+ 6dc:	f8 94       	cli
 
-000006c6 <__stop_program>:
- 6c6:	ff cf       	rjmp	.-2      	; 0x6c6 <__stop_program>
+000006de <__stop_program>:
+ 6de:	ff cf       	rjmp	.-2      	; 0x6de <__stop_program>
